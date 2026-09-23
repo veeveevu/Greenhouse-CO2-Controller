@@ -30,8 +30,8 @@
 #define FREERTOS_SDK_CONFIG_H
 
 #ifndef __ASSEMBLER__
-    #include "FreeRTOSConfig.h"
-    #include "rp2040_config.h"
+    #include "../../../../../../src/lib/FreeRTOSConfig.h"
+#include "rp2040_config.h"
     #ifndef PICO_USE_MALLOC_MUTEX
         // malloc needs to be made thread safe
         #define PICO_USE_MALLOC_MUTEX 1

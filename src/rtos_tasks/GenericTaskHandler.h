@@ -1,0 +1,14 @@
+//
+// Created by Anh Huynh on 23.9.2026.
+//
+
+#ifndef GREENHOUSE_GENERICTASKHANDLER_H
+#define GREENHOUSE_GENERICTASKHANDLER_H
+
+
+class GenericTaskHandler
+{
+};
+
+
+#endif //GREENHOUSE_GENERICTASKHANDLER_H

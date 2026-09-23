@@ -8,7 +8,7 @@
 #include "semphr.h"
 #include "task.h"
 #include "hardware/i2c.h"
-#include "Fmutex.h"
+#include "../Fmutex.h"
 
 class PicoI2C {
 public:
