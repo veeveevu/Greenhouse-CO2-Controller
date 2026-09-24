@@ -1,48 +1,57 @@
-add_executable(${ProjectName}
+file(GLOB_RECURSE APP_SOURCES
+        "${CMAKE_CURRENT_LIST_DIR}/*.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/*.c"
+        "${CMAKE_CURRENT_LIST_DIR}/*.cc"
+)
+add_executable(GreenHouse ${APP_SOURCES})
+#[[add_executable(${PROJECT_NAME}
         main.cpp
-        critical_section.cpp
-        Fmutex.cpp
-        Fmutex.h
+        lib/critical_section.cpp
+        lib/Fmutex.cpp
+        lib/Fmutex.h
         blinker.cpp
         blinker.h
 
-#        ipstack/IPStack.cpp
-#        ipstack/IPStack.h
-        ipstack/lwipopts.h
-        ipstack/tls_common.c
-        ipstack/picow_tls_client.c
-        ipstack/lwipopts_tls.h
+        #        ipstack/IPStack.cpp
+        #        ipstack/IPStack.h
+        lib/ipstack/lwipopts.h
+        lib/ipstack/tls_common.c
+        lib/ipstack/picow_tls_client.c
+        lib/ipstack/lwipopts_tls.h
 
-        i2c/PicoI2C.cpp
-        i2c/PicoI2C.h
+        lib/i2c/PicoI2C.cpp
+        lib/i2c/PicoI2C.h
 
-        uart/PicoOsUart.cpp
-        uart/PicoOsUart.h
+        lib/uart/PicoOsUart.cpp
+        lib/uart/PicoOsUart.h
 
-        modbus/nanomodbus.h
-        modbus/nanomodbus.c
-        modbus/ModbusRegister.cpp
-        modbus/ModbusRegister.h
-        modbus/ModbusClient.cpp
-        modbus/ModbusClient.h
+        lib/modbus/nanomodbus.h
+        lib/modbus/nanomodbus.c
+        lib/modbus/ModbusRegister.cpp
+        lib/modbus/ModbusRegister.h
+        lib/modbus/ModbusClient.cpp
+        lib/modbus/ModbusClient.h
 
-        display/framebuf.cpp
-        display/framebuf.h
-        display/mono_vlsb.cpp
-        display/mono_vlsb.h
-#        display/ssd1306.cpp
-#        display/ssd1306.h
-        display/ssd1306os.h
-        display/ssd1306os.cpp
-)
+        lib/display/framebuf.cpp
+        lib/display/framebuf.h
+        lib/display/mono_vlsb.cpp
+        lib/display/mono_vlsb.h
+        #        display/ssd1306.cpp
+        #        display/ssd1306.h
+        lib/display/ssd1306os.h
+        lib/display/ssd1306os.cpp
+)]]
 
 target_include_directories(${ProjectName} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
-        modbus
-        uart
-        i2c
-        display
-        ipstack
+        lib/modbus
+        lib/uart
+        lib/i2c
+        lib/display
+        lib/ipstack
+        drivers
+        hardware
+        rtos_tasks
 )
 
 target_compile_definitions(${ProjectName} PRIVATE

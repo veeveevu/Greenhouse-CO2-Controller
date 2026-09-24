@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 17)
 
 # Name project
-SET(ProjectName rp2040-freertos-irq)
+SET(ProjectName GreenHouse)
 
 # Set any variables required for importing libraries
 SET(FREERTOS_KERNEL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/FreeRTOS-KernelV10.6.2)
@@ -22,11 +22,13 @@ project(${ProjectName})
 # Initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
 
+
 #add_compile_options(-O0)
 # Add subdirectories
 add_subdirectory(src)
 
 # if you have anything in "lib" folder then uncomment below - remember to add a CMakeLists.txt
 # file to the "lib" directory
-#add_subdirectory(lib)
+#add_subdirectory(greenhouse)
+
 
