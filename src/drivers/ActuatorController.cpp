@@ -5,7 +5,7 @@
 #include "ActuatorController.h"
 
 ActuatorController::ActuatorController(const std::shared_ptr<ModbusClient> &client)
-	: ventilation_fan(client, ), //Fill in the addresses
+	: ventilation_fan_speed(client, 1, 0, true),
 	injection_valve(27,true,false, false)
 {}
 
