@@ -6,15 +6,22 @@
 #define GREENHOUSE_TASKREADSENSORS_H
 
 
-#define UART_NR 1
-#define UART_TX_PIN 4
-#define UART_RX_PIN 5
-#define BAUD_RATE 9600
-#define STOP_BITS 2 // for real system (pico simualtor also requires 2 stop bits)
+#include "ModbusClient.h"
+#include "SensorDataHandler.h"
 
 
-class TaskReadSensors
+class SensorTask
 {
+public:
+    SensorTask(const std::shared_ptr<ModbusClient>& client, QueueHandle_t out_queue);
+    void start();
+
+private:
+    static void task_entry(void* param);
+    void run();
+
+    SensorDataHandler handler;
+    QueueHandle_t out_queue;
 };
 
 

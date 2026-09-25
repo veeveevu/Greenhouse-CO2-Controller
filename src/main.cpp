@@ -8,10 +8,12 @@
 #include "ssd1306.h"
 
 #include "SensorDataHandler.h"
+#include "TaskReadSensors.h"
 #include "lib/modbus/ModbusRegister.h"
 
 #include "hardware/timer.h"
 #include "pico/stdio.h"
+#include "pico/stdlib.h"
 
 extern "C" {
 uint32_t read_runtime_ctr(void) {
@@ -27,8 +29,34 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
 }
 }
 
-int main() {
 
+#define UART_NR 1
+#define UART_TX_PIN 4
+#define UART_RX_PIN 5
+#define BAUD_RATE 9600
+#define STOP_BITS 2 // for real system (pico simualtor also requires 2 stop bits)
+
+int main() {
+    stdio_init_all();
+
+    auto uart = std::make_shared<PicoOsUart>(UART_NR,UART_TX_PIN,UART_RX_PIN,BAUD_RATE,STOP_BITS
+    );
+
+    auto client = std::make_shared<ModbusClient>(uart);
+
+    QueueHandle_t sensor_queue = xQueueCreate(
+        1,
+        sizeof(sensorData)
+    );
+
+    static SensorTask sensor_task(client, sensor_queue);
+    sensor_task.start();
+
+    vTaskStartScheduler();
+
+    while (true)
+    {
+    }
 }
 
 /* CODE CUA THAY KEIJO ========================================================================================
