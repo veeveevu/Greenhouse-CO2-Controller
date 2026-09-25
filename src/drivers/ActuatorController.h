@@ -7,19 +7,22 @@
 #include "GPIOPin.h"
 #include "ModbusRegister.h"
 
-class ActuatorController
-{
-	public:
-		explicit ActuatorController(std::shared_ptr<ModbusClient>client);
-		ActuatorController(const std::shared_ptr<ModbusClient>& client);
-		void fan_set_power(double power);
-		void fan_turn_off();
-		void valve_open();
-		void valve_close();
+class ActuatorController {
+public:
+    ActuatorController(const std::shared_ptr<ModbusClient>& client);
+    void fan_set_power(float power);
+    void fan_turn_off();
+    float fan_get_power() const;
 
-	private:
-		ModbusRegister ventilation_fan_speed;
-		GPIOPin injection_valve;
+    void valve_open();
+    void valve_close();
+
+
+
+private:
+    ModbusRegister ventilation_fan;
+    GPIOPin injection_valve;
+    float current_fan_power = 0.0;
 };
 
 

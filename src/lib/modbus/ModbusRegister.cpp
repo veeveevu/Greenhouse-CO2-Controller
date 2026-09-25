@@ -15,8 +15,10 @@ uint16_t ModbusRegister::read() {
     // With RTU one client handles all devices (servers) on the same bus
     // so we need to set the server address
     client->set_destination_rtu_address(server);
+
     if(hr) client->read_holding_registers(reg_addr, 1, &value);
     else client->read_input_registers(reg_addr, 1, &value);
+
     return value;
 }
 

@@ -7,8 +7,12 @@
 #include "PicoOsUart.h"
 #include "ssd1306.h"
 
+#include "SensorDataHandler.h"
+#include "lib/modbus/ModbusRegister.h"
 
 #include "hardware/timer.h"
+#include "pico/stdio.h"
+
 extern "C" {
 uint32_t read_runtime_ctr(void) {
     return timer_hw->timerawl;
@@ -23,6 +27,11 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
 }
 }
 
+int main() {
+
+}
+
+/* CODE CUA THAY KEIJO ========================================================================================
 #include "blinker.h"
 
 SemaphoreHandle_t gpio_sem;
@@ -265,3 +274,4 @@ void i2c_task(void *param) {
 
 
 }
+*/
