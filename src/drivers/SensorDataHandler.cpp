@@ -11,11 +11,12 @@ SensorDataHandler::SensorDataHandler(const std::shared_ptr<ModbusClient>& client
     //pressure_sensor = PressureSensor();
 }
 
+//read sensors
 void SensorDataHandler::sensors_read() {
 
     uint16_t raw_co2 = co2_sensor.read();
     auto co2_value = static_cast<int16_t>(raw_co2);
-    data.co2_ppm = static_cast<float>(co2_value);
+    data.co2_level_ppm = static_cast<float>(co2_value);
 
     uint16_t raw_temp = temp_sensor.read();
     auto temp_value = static_cast<int16_t>(raw_temp);
@@ -27,7 +28,7 @@ void SensorDataHandler::sensors_read() {
 
     data.fan_pulse_counter = fan_counter_sensor.read();
 
-    //check if 2 times read 0 -> fan stopp
+    //check if 2 times read 0 -> fan stop -> update is_fan_running
     if (data.fan_pulse_counter == 0) {
         if (fan_zero_reads < 2) {
             ++fan_zero_reads;
@@ -39,7 +40,8 @@ void SensorDataHandler::sensors_read() {
         data.is_fan_running = true;
     }
 
-    std::cout << "CO2: " << data.co2_ppm << " ppm\n"
+
+    std::cout << "CO2: " << data.co2_level_ppm << " ppm\n"
               << "Temperature: " << data.temp_celsius << " C\n"
               << "Humidity: " << data.humidity_percent << " %\n"
               << "Fan pulse: " << data.fan_pulse_counter << '\n';

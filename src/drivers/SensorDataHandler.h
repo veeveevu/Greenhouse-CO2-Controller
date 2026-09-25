@@ -8,7 +8,7 @@
 #include "PressureSensor.h"
 
 struct sensorData {
-    float co2_ppm = 0;
+    float co2_level_ppm = 0;
     float temp_celsius = 0;
     float humidity_percent = 0;
     float pressure_pa = 0;
