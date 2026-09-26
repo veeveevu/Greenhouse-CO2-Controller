@@ -9,11 +9,13 @@
 #include "ModbusClient.h"
 #include "SensorDataHandler.h"
 
+#define READING_PERIOD_MS 5000
+
 
 class SensorTask
 {
 public:
-    SensorTask(const std::shared_ptr<ModbusClient>& client, QueueHandle_t out_queue);
+    SensorTask(const std::shared_ptr<ModbusClient>& client, QueueHandle_t sensor_queue);
     void start();
 
 private:
@@ -21,7 +23,7 @@ private:
     void run();
 
     SensorDataHandler handler;
-    QueueHandle_t out_queue;
+    QueueHandle_t sensor_queue;
 };
 
 

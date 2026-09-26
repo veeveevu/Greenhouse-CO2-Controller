@@ -47,6 +47,6 @@ void SensorDataHandler::sensors_read() {
               << "Fan pulse: " << data.fan_pulse_counter << '\n';
 }
 
-sensorData SensorDataHandler::return_sensor_data() const {
+SensorReading SensorDataHandler::return_sensor_data() const {
     return data;
 }

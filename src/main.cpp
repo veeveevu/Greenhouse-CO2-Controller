@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include "FreeRTOS.h"
+#include "GenericTaskHandler.h"
 #include "task.h"
 #include "semphr.h"
 #include "hardware/gpio.h"
@@ -29,7 +30,6 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
 }
 }
 
-
 #define UART_NR 1
 #define UART_TX_PIN 4
 #define UART_RX_PIN 5
@@ -39,18 +39,20 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
 int main() {
     stdio_init_all();
 
-    auto uart = std::make_shared<PicoOsUart>(UART_NR,UART_TX_PIN,UART_RX_PIN,BAUD_RATE,STOP_BITS
-    );
+    auto uart = std::make_shared<PicoOsUart>(UART_NR,UART_TX_PIN,UART_RX_PIN,BAUD_RATE,STOP_BITS);
 
     auto client = std::make_shared<ModbusClient>(uart);
+    auto actuator = std::make_shared<ActuatorController>(client);
 
-    QueueHandle_t sensor_queue = xQueueCreate(
-        1,
-        sizeof(sensorData)
-    );
+    QueueHandle_t sensor_queue = xQueueCreate(1,sizeof(SensorReading));
+    QueueHandle_t setpoint_queue = xQueueCreate(1, sizeof(Co2Setting));
+    QueueHandle_t actuator_state_queue = xQueueCreate(1, sizeof(ActuatorState));
 
     static SensorTask sensor_task(client, sensor_queue);
+    static ControllerTask  controller_task(actuator, sensor_queue,setpoint_queue, actuator_state_queue);
+
     sensor_task.start();
+    controller_task.start();
 
     vTaskStartScheduler();
 

@@ -14,6 +14,8 @@
 class ModbusClient {
 public:
     explicit ModbusClient(std::shared_ptr<PicoOsUart> uart_);
+    ~ModbusClient();
+
     void set_destination_rtu_address(uint8_t address);
     nmbs_error read_coils(uint16_t address, uint16_t quantity, nmbs_bitfield coils_out);
     nmbs_error read_discrete_inputs(uint16_t address, uint16_t quantity, nmbs_bitfield inputs_out);
@@ -23,11 +25,15 @@ public:
     nmbs_error write_single_register(uint16_t address, uint16_t value);
     nmbs_error write_multiple_coils(uint16_t address, uint16_t quantity, const nmbs_bitfield coils);
     nmbs_error write_multiple_registers(uint16_t address, uint16_t quantity, const uint16_t* registers);
+
+    void lock();
+    void unlock();
 private:
     static int32_t uart_transport_write(const uint8_t *buf, uint16_t count, int32_t byte_timeout_ms, void *arg);
     static int32_t uart_transport_read(uint8_t *buf, uint16_t count, int32_t byte_timeout_ms, void *arg);
 
     std::shared_ptr<PicoOsUart> uart;
+    SemaphoreHandle_t modbus_mutex;
     nmbs_platform_conf platform_conf;
     nmbs_t nmbs;
 };
