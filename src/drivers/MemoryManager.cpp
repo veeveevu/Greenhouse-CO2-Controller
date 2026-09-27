@@ -6,7 +6,7 @@
 
 #include <cstring>
 
-void MemoryManager::read_co2_setting(double *read_co2_dest)
+void MemoryManager::read_co2_setting(uint8_t *read_co2_dest)
 {
 	uint8_t dest[64];
 	eeprom.read(dest,default_payload,co2_setting_addr);

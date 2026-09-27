@@ -13,7 +13,7 @@ class MemoryManager
 		MemoryManager(std::shared_ptr<PicoI2C> i2c_0) : eeprom(EEPROM(i2c_0)) {};
 		void save_new_co2_setting(double new_co2_setting);
 		void save_network_setting();
-		void read_co2_setting(double *read_co2_dest);
+		void read_co2_setting(uint8_t *read_co2_dest);
 		void read_network_setting(uint8_t *dest);
 
 	private:

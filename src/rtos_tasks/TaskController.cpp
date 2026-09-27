@@ -10,54 +10,17 @@
 #include "task.h"
 #include "queue.h"
 
-ControllerTask::ControllerTask(const std::shared_ptr<ActuatorController>& actuator, QueueHandle_t sensor_queue,
-                               QueueHandle_t setpoint_queue, QueueHandle_t actuator_state_queue)
-    : controller(actuator), sensor_queue(sensor_queue), setpoint_queue(setpoint_queue),
-      actuator_state_queue(actuator_state_queue) {}
-
-void ControllerTask::start() {
-    xTaskCreate(task_entry, "Control Valve and Fan", 1024, this, tskIDLE_PRIORITY + 2, nullptr);
+ControllerTask::ControllerTask(const std::shared_ptr<ActuatorController> &actuator, QueueHandle_t sensor_queue,
+                               QueueHandle_t setpoint_queue, QueueHandle_t actuator_state_queue, SystemStorage &storage)
+	: ParentTask("Control Valve and Fan", 1024, tskIDLE_PRIORITY + 2),
+	  controller(actuator), sensor_queue(sensor_queue), setpoint_queue(setpoint_queue),
+	  actuator_state_queue(actuator_state_queue),
+	  storage(storage)
+{
 }
 
-void ControllerTask::task_entry(void* param) {
-    auto* self = static_cast<ControllerTask*>(param);
-    self->run();
-}
 
-void ControllerTask::run() {
-    SensorReading data;
-    Co2Setting new_setting;
-
-    while (true) {
-        //check setpoint from setpoint_queue -> new -> set co2_setpoint in struct
-        if (xQueueReceive(setpoint_queue, &new_setting, 0) == pdPASS) {
-            co2_setpoint = new_setting.co2_setpoint;
-            if (co2_setpoint > 1500) {co2_setpoint = 1500;}
-            if (co2_setpoint < 0) {co2_setpoint = 0;}
-        }
-
-        //take newest sensor data from sensor_queue (dung xQueuePeek de khong xoa data sau khi doc)
-        if (xQueuePeek(sensor_queue, &data, pdMS_TO_TICKS(1000)) == pdPASS) {
-            handle_co2(data);
-        }
-
-        //write actuator state in struct
-        bool valve_open = false;
-        if (valve_state == ValveState::OPEN)
-        {
-            valve_open = true;
-        }
-        ActuatorState state{
-            .fan_power_percent = controller->fan_get_power(),
-            .is_valve_open = valve_open
-        };
-        xQueueOverwrite(actuator_state_queue, &state);
-
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
-}
-
-void ControllerTask::handle_co2(const SensorReading& data) {
+void ControllerTask::handle_co2(const SensorReading &data) {
     TickType_t now = xTaskGetTickCount();
 
     //co2 > 2000 -> close valve -> max fan
@@ -107,4 +70,43 @@ void ControllerTask::handle_co2(const SensorReading& data) {
         }
         break;
     }
+}
+
+
+void ControllerTask::task_runner() {
+
+	Co2Setting new_setting;
+
+	while (true) {
+		SensorReading data = storage.get_data();
+		//code cua c Vy
+		//check setpoint from setpoint_queue -> new -> set co2_setpoint in struct
+		/*if (xQueueReceive(setpoint_queue, &new_setting, 0) == pdPASS) {
+			co2_setpoint = new_setting.co2_setpoint;
+			if (co2_setpoint > 1500) {co2_setpoint = 1500;}
+			if (co2_setpoint < 0) {co2_setpoint = 0;}
+		}*/
+
+		//take newest sensor data from sensor_queue (dung xQueuePeek de khong xoa data sau khi doc)
+		/*if (xQueuePeek(sensor_queue, &data, pdMS_TO_TICKS(1000)) == pdPASS) {
+			handle_co2(data);
+		}*/
+		co2_setpoint = data.co2_set_point;
+		handle_co2(data);
+
+		//write actuator state in struct
+		/*
+		bool valve_open = false;
+		if (valve_state == ValveState::OPEN)
+		{
+			valve_open = true;
+		}
+		ActuatorState state{
+			.fan_power_percent = controller->fan_get_power(),
+			.is_valve_open = valve_open
+		};
+		xQueueOverwrite(actuator_state_queue, &state);*/
+
+		vTaskDelay(pdMS_TO_TICKS(100));
+	}
 }

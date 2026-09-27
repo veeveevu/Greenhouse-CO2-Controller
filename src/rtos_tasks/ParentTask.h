@@ -23,7 +23,7 @@ class ParentTask
 			&handle
 			);
 		}
-		virtual ~GenericTaskHandler()
+		virtual ~ParentTask()
 		{
 			vTaskDelete(handle);
 		};
@@ -34,11 +34,11 @@ class ParentTask
 		UBaseType_t priority;
 		static void task_handler(void* param)
 		{
-			auto instance = static_cast<GenericTaskHandler*> (param);
+			auto instance = static_cast<ParentTask*> (param);
 			instance -> task_runner();
 		}
 	protected:
 		TaskHandle_t handle;
-
+}
 
 #endif //GREENHOUSE_PARENTTASK_H

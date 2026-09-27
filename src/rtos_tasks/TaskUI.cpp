@@ -3,6 +3,10 @@
 //
 
 #include "TaskUI.h"
+#define CO2_UPPER_LIM 1500
+#define CO2_CHANGE 10
+
+
 
 namespace EncoderEvent
 {
@@ -13,6 +17,10 @@ namespace EncoderEvent
 
 void TaskUI::task_runner()
 {
+	//Read from EEPROM and save
+	eeprom.read_co2_setting(reinterpret_cast<uint8_t *>(&co2_setting_display));
+	storage.set_co2_point(co2_setting_display);
+
 	while (true)
 	{
 		switch (current_state)
@@ -72,6 +80,8 @@ void TaskUI::menu_interaction()
 				current_state = oled.get_current_select() == 1 ? UIEvent::SHOW_DATA : UIEvent::CO2_SETTING;
 				transition_to(current_state);
 				break;
+			default:
+				break;
 		}
 	}
 	else if (button.is_pressed())
@@ -89,11 +99,11 @@ void TaskUI::co2_setting_interaction()
 		switch (encoder_receive)
 		{
 			case EncoderEvent::CLOCKWISE:
-				co2_setting_display += 10;
+				set_co2(CO2_CHANGE);
 				oled.clear_co2_display();
 				break;
 			case EncoderEvent::ANTI_CLOCKWISE:
-				co2_setting_display -= 10;
+				set_co2(-CO2_CHANGE);
 				oled.clear_co2_display();
 				break;
 			case EncoderEvent::PRESS:
@@ -103,6 +113,8 @@ void TaskUI::co2_setting_interaction()
 				//Go back to main screen - menu
 				transition_to(UIEvent::MENU);
 				break;
+			default:
+				break;
 		}
 	}
 	else if (button.is_pressed())
@@ -110,6 +122,18 @@ void TaskUI::co2_setting_interaction()
 		co2_setting_display = temp_co2_setting; //Reset co2 setting because it was not saved
 		transition_to(UIEvent::MENU);
 	}
+}
+void TaskUI::set_co2(int change)
+{
+	if (change > 0 && co2_setting_display <= CO2_UPPER_LIM - CO2_CHANGE)
+	{
+		co2_setting_display += CO2_CHANGE;
+	}
+	else if (change < 0 && co2_setting_display >= CO2_CHANGE)
+	{
+		co2_setting_display -= CO2_CHANGE;
+	}
+	storage.set_co2_point(co2_setting_display);
 }
 
 void TaskUI::show_data_interaction()

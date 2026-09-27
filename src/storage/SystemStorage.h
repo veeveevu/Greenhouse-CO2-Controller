@@ -13,6 +13,9 @@ class SystemStorage
 		SystemStorage();
 		SensorReading get_data();
 		SensorReading update_data(SensorReading new_data);
+
+		void set_co2_point(int new_co2_point);
+
 	private:
 		SensorReading data;
 };

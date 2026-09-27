@@ -7,23 +7,25 @@
 
 
 #include "ModbusClient.h"
+#include "ParentTask.h"
 #include "SensorDataHandler.h"
+#include "storage/SystemStorage.h"
 
 #define READING_PERIOD_MS 5000
 
 
-class SensorTask
+class SensorTask : public ParentTask
 {
 public:
-    SensorTask(const std::shared_ptr<ModbusClient>& client, QueueHandle_t sensor_queue);
-    void start();
+    SensorTask(const std::shared_ptr<ModbusClient>& client, QueueHandle_t sensor_queue, SystemStorage &storage);
+
 
 private:
-    static void task_entry(void* param);
-    void run();
+    void task_runner() override;
 
     SensorDataHandler handler;
     QueueHandle_t sensor_queue;
+	SystemStorage &storage;
 };
 
 
