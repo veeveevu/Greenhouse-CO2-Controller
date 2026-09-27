@@ -4,6 +4,7 @@
 
 #ifndef GREENHOUSE_DATA_STRUCTS_H
 #define GREENHOUSE_DATA_STRUCTS_H
+#include <cstdint>
 
 //struct only for sensor_task
 struct SensorReading {

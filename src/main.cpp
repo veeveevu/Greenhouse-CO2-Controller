@@ -10,6 +10,7 @@
 
 #include "SensorDataHandler.h"
 #include "TaskReadSensors.h"
+#include "TaskUI.h"
 #include "lib/modbus/ModbusRegister.h"
 
 #include "hardware/timer.h"
@@ -43,16 +44,20 @@ int main() {
 
     auto client = std::make_shared<ModbusClient>(uart);
     auto actuator = std::make_shared<ActuatorController>(client);
+	SystemStorage storage = SystemStorage();
+	auto i2c = std::make_shared<PicoI2C>(0, 100000);
 
     QueueHandle_t sensor_queue = xQueueCreate(1,sizeof(SensorReading));
     QueueHandle_t setpoint_queue = xQueueCreate(1, sizeof(Co2Setting));
     QueueHandle_t actuator_state_queue = xQueueCreate(1, sizeof(ActuatorState));
 
-    static SensorTask sensor_task(client, sensor_queue);
-    static ControllerTask  controller_task(actuator, sensor_queue,setpoint_queue, actuator_state_queue);
+    static SensorTask     sensor_task(client, sensor_queue,storage);
+    static ControllerTask controller_task(actuator, sensor_queue,setpoint_queue, actuator_state_queue,storage);
+	static TaskUI ui_task(i2c,storage);
 
     sensor_task.start();
     controller_task.start();
+	ui_task.start();
 
     vTaskStartScheduler();
 

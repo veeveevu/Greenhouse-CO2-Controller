@@ -39,6 +39,6 @@ class ParentTask
 		}
 	protected:
 		TaskHandle_t handle;
-}
+};
 
 #endif //GREENHOUSE_PARENTTASK_H

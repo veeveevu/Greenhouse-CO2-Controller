@@ -27,8 +27,6 @@ public:
     ControllerTask(const std::shared_ptr<ActuatorController>& actuator, QueueHandle_t sensor_queue,
                    QueueHandle_t setpoint_queue, QueueHandle_t actuator_state_queue,
                    SystemStorage &storage);
-    void start();
-
 private:
     void task_runner() override;
 

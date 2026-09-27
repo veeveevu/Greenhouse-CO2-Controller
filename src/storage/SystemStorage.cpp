@@ -4,12 +4,17 @@
 
 #include "SystemStorage.h"
 
+SystemStorage::SystemStorage()
+{
+
+}
+
 SensorReading SystemStorage::get_data()
 {
 	return data;
 }
 
-SensorReading SystemStorage::update_data(SensorReading new_data)
+void SystemStorage::update_data(SensorReading new_data)
 {
 	data.co2_level_ppm = new_data.co2_level_ppm;
 	data.temp_celsius = new_data.temp_celsius;
