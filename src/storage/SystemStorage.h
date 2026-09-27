@@ -5,6 +5,7 @@
 #ifndef GREENHOUSE_SYSTEMSTORAGE_H
 #define GREENHOUSE_SYSTEMSTORAGE_H
 #include "data_structs.h"
+#include "semphr.h"
 
 
 class SystemStorage
@@ -18,6 +19,7 @@ class SystemStorage
 
 	private:
 		SensorReading data;
+		SemaphoreHandle_t mutex;
 };
 
 

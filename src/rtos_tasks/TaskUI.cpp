@@ -5,6 +5,7 @@
 #include "TaskUI.h"
 #define CO2_UPPER_LIM 1500
 #define CO2_CHANGE 10
+#define CO2_LOWER_LIM 0
 
 
 
@@ -125,11 +126,11 @@ void TaskUI::co2_setting_interaction()
 }
 void TaskUI::set_co2(int change)
 {
-	if (change > 0 && co2_setting_display <= CO2_UPPER_LIM - CO2_CHANGE)
+	if (change > 0 && (co2_setting_display <= (CO2_UPPER_LIM - CO2_CHANGE)))
 	{
 		co2_setting_display += CO2_CHANGE;
 	}
-	else if (change < 0 && co2_setting_display >= CO2_CHANGE)
+	else if (change < 0 && (co2_setting_display >= (CO2_LOWER_LIM + CO2_CHANGE)))
 	{
 		co2_setting_display -= CO2_CHANGE;
 	}
