@@ -6,6 +6,7 @@
 #include "pico/time.h"
 
 ModbusClient::ModbusClient(std::shared_ptr<PicoOsUart> uart_) : uart(uart_) {
+    modbus_mutex = xSemaphoreCreateMutex();
     platform_conf.transport = NMBS_TRANSPORT_RTU;
     platform_conf.read = uart_transport_read;
     platform_conf.write = uart_transport_write;
@@ -24,6 +25,20 @@ ModbusClient::ModbusClient(std::shared_ptr<PicoOsUart> uart_) : uart(uart_) {
     nmbs_set_byte_timeout(&nmbs, 3);
 
 
+}
+
+ModbusClient::~ModbusClient() {
+    if (modbus_mutex != nullptr) {
+        vSemaphoreDelete(modbus_mutex);
+    }
+}
+
+void ModbusClient::lock() {
+    xSemaphoreTake(modbus_mutex, portMAX_DELAY);
+}
+
+void ModbusClient::unlock() {
+    xSemaphoreGive(modbus_mutex);
 }
 
 int32_t ModbusClient::uart_transport_read(uint8_t *buf, uint16_t count, int32_t byte_timeout_ms, void *arg) {

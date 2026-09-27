@@ -14,9 +14,14 @@ uint16_t ModbusRegister::read() {
     uint16_t value = 0;
     // With RTU one client handles all devices (servers) on the same bus
     // so we need to set the server address
+    client->lock();
     client->set_destination_rtu_address(server);
+
     if(hr) client->read_holding_registers(reg_addr, 1, &value);
     else client->read_input_registers(reg_addr, 1, &value);
+
+    client->unlock();
+
     return value;
 }
 
@@ -25,7 +30,9 @@ void ModbusRegister::write(uint16_t value) {
     if(hr){
         // With RTU one client handles all devices (servers) on the same bus
         // so we need to set the server address
+        client->lock();
         client->set_destination_rtu_address(server);
         client->write_single_register(reg_addr, value);
+        client->unlock();
     }
 }

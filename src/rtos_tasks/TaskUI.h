@@ -5,7 +5,7 @@
 #ifndef GREENHOUSE_TASKUI_H
 #define GREENHOUSE_TASKUI_H
 #include "Button.h"
-#include "GenericTaskHandler.h"
+#include "ParentTask.h"
 #include "OLEDDisplay.h"
 #include  "RotaryEncoder.h"
 
@@ -15,11 +15,11 @@
 
 enum class UIEvent {MENU, CO2_SETTING, SHOW_DATA};
 
-class TaskUI : public GenericTaskHandler
+class TaskUI : public ParentTask
 {
 	public:
 		TaskUI ()
-		: GenericTaskHandler("UI Task",2048,tskIDLE_PRIORITY + 1),
+		: ParentTask("UI Task",2048,tskIDLE_PRIORITY + 1),
 		oled(),
 		button(SW0)
 		{
