@@ -4,10 +4,17 @@
 
 #ifndef GREENHOUSE_CO2VALVE_H
 #define GREENHOUSE_CO2VALVE_H
+#include "GPIOPin.h"
 
 
 class CO2Valve
 {
+	public:
+		CO2Valve();
+		void open();
+		void close();
+	private:
+		GPIOPin co2_valve;
 };
 
 

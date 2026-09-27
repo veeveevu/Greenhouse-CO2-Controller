@@ -3,11 +3,11 @@
 //
 
 #include "ActuatorController.h"
-
+/*
 ActuatorController::ActuatorController(const std::shared_ptr<ModbusClient> &client)
 	: ventilation_fan(client, ), //Fill in the addresses
 	injection_valve(27,true,false, false)
-{}
+{}*/
 
 void ActuatorController::fan_set_power(double power)
 {

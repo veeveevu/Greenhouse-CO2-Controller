@@ -1,14 +1,23 @@
 #include <iostream>
 #include <sstream>
 #include "FreeRTOS.h"
+#include "MemoryManager.h"
+#include "OLEDDisplay.h"
 #include "task.h"
 #include "semphr.h"
 #include "hardware/gpio.h"
 #include "PicoOsUart.h"
 #include "ssd1306.h"
+#include "TaskUI.h"
 
 
 #include "hardware/timer.h"
+#include "pico/stdio.h"
+
+#define ROT_SW 12
+#define ROT_A 10
+#define ROT_B 11
+
 extern "C" {
 uint32_t read_runtime_ctr(void) {
     return timer_hw->timerawl;
@@ -23,6 +32,27 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
 }
 }
 
+int main()
+{
+	stdio_init_all();
+	printf("Boot\n");
+	printf("Create task UI\n");
+	TaskUI *ui_ = new TaskUI();
+	printf("Create encoder\n");
+	Encoder encoder(ROT_SW,ROT_A,ROT_B, ui_->get_queue_handle());
+
+	printf("Start task UI");
+	ui_->start();
+	printf("Starting Scheduler...\n");
+	vTaskStartScheduler();
+	printf("ERROR: FreeRTOS Scheduler failed to start (Out of Heap!)\n");
+	while (true)
+	{
+
+	}
+}
+
+#if 0
 #include "blinker.h"
 
 SemaphoreHandle_t gpio_sem;
@@ -131,9 +161,9 @@ int main()
     //xTaskCreate(gpio_task, "BUTTON", 256, (void *) nullptr, tskIDLE_PRIORITY + 1, nullptr);
     //xTaskCreate(serial_task, "UART1", 256, (void *) nullptr,
     //            tskIDLE_PRIORITY + 1, nullptr);
-#if 0
-    xTaskCreate(modbus_task, "Modbus", 512, (void *) nullptr,
-                tskIDLE_PRIORITY + 1, nullptr);
+#if 1
+    //xTaskCreate(modbus_task, "Modbus", 512, (void *) nullptr,
+              //  tskIDLE_PRIORITY + 1, nullptr);
 
 
     xTaskCreate(display_task, "SSD1306", 512, (void *) nullptr,
@@ -218,11 +248,15 @@ void modbus_task(void *param) {
 #include "ssd1306os.h"
 void display_task(void *param)
 {
+	/*
     auto i2cbus{std::make_shared<PicoI2C>(1, 400000)};
     ssd1306os display(i2cbus);
     display.fill(0);
     display.text("Boot", 0, 0);
-    display.show();
+    display.show();*/
+
+	OLEDDisplay display = OLEDDisplay();
+	display.change_co2_setting(1000);
     while(true) {
         vTaskDelay(100);
     }
@@ -256,6 +290,16 @@ void i2c_task(void *param) {
     }
     printf("\n");
 
+	MemoryManager memory_manager = MemoryManager();
+	printf("Write to EEPROM: 1500\n");
+	double new_data = 1500;
+	memory_manager.save_new_co2_setting(new_data);
+
+	double co2_read = 0;
+	printf("Read from EEPROM: ");
+	memory_manager.read_co2_setting(&co2_read);
+	printf("%f\n",co2_read);
+
     while(true) {
         gpio_put(led_pin, 1);
         vTaskDelay(delay);
@@ -265,3 +309,5 @@ void i2c_task(void *param) {
 
 
 }
+
+#endif

@@ -4,7 +4,7 @@
 
 #ifndef GREENHOUSE_GPIOPIN_H
 #define GREENHOUSE_GPIOPIN_H
-
+#include <cstdint>
 
 
 class GPIOPin
@@ -16,6 +16,7 @@ class GPIOPin
 		bool read() const;
 		void write(bool value) const;
 		explicit operator bool() const;
+		int get_pin();
 	private:
 		static uint32_t pins_in_use;
 		int pin;

@@ -8,11 +8,12 @@
 #include "IPStack.h"
 
 #include "hardware/timer.h"
+/*
 extern "C" {
 uint32_t read_runtime_ctr(void) {
     return timer_hw->timerawl;
 }
-}
+}*/
 
 
 #if 1
@@ -119,7 +120,7 @@ void test_task(void *param) {
 }
 
 
-
+/*
 int main()
 {
     stdio_init_all();
@@ -137,3 +138,4 @@ int main()
 
     while(true){};
 }
+*/
