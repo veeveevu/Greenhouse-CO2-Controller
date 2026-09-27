@@ -6,10 +6,10 @@
 #define GREENHOUSE_PARENTTASK_H
 
 
-class GenericTaskHandler
+class ParentTask
 {
 	public:
-		GenericTaskHandler(const char* name, uint16_t stack_depth, UBaseType_t priority)
+		ParentTask(const char* name, uint16_t stack_depth, UBaseType_t priority)
 			: name(name), stack_depth(stack_depth), priority(priority)
 		{}
 		void start()

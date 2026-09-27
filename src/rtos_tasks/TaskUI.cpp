@@ -4,6 +4,13 @@
 
 #include "TaskUI.h"
 
+namespace EncoderEvent
+{
+	constexpr int CLOCKWISE = 1;
+	constexpr int ANTI_CLOCKWISE = -1;
+	constexpr int PRESS = 0;
+}
+
 void TaskUI::task_runner()
 {
 	while (true)
@@ -28,90 +35,80 @@ void TaskUI::task_runner()
 
 void TaskUI::handle_interaction()
 {
-	if (current_state == UIEvent::MENU)
+	switch (current_state)
 	{
-		menu_interaction();
+		case UIEvent::MENU:
+			menu_interaction();
+			break;
+		case UIEvent::CO2_SETTING:
+			co2_setting_interaction();
+			break;
+		case UIEvent::SHOW_DATA:
+			show_data_interaction();
+			break;
 	}
-	if (current_state == UIEvent::CO2_SETTING)
-	{
-		co2_setting_interaction();
-	}
-	if (current_state == UIEvent::SHOW_DATA)
-	{
-		show_data_interaction();
-	}
+}
 
+void TaskUI::transition_to(UIEvent new_state)
+{
+	oled.clear();
+	current_state = new_state;
 }
 
 void TaskUI::menu_interaction()
 {
-	int isr_receive;
-	if (xQueueReceive(ui_queue, &isr_receive,0) == pdPASS)
+	int encoder_receive;
+	if (xQueueReceive(ui_queue, &encoder_receive,0) == pdPASS)
 	{
-		if (isr_receive == 1)
+		switch (encoder_receive)
 		{
-			oled.increment_menu_select();
-		}
-		else if (isr_receive == -1)
-		{
-			oled.decrement_menu_select();
-		}
-		else if (isr_receive == 0)
-		{
-			if (oled.get_current_select() == 1)
-			{
-				oled.clear();
-				current_state = UIEvent::SHOW_DATA;
-			}
-			else if (oled.get_current_select() == 2)
-			{
-				oled.clear();
-				current_state = UIEvent::CO2_SETTING;
-			}
+			case EncoderEvent::CLOCKWISE:
+				oled.increment_menu_select();
+				break;
+			case EncoderEvent::ANTI_CLOCKWISE:
+				oled.decrement_menu_select();
+				break;
+			case EncoderEvent::PRESS:
+				current_state = oled.get_current_select() == 1 ? UIEvent::SHOW_DATA : UIEvent::CO2_SETTING;
+				transition_to(current_state);
+				break;
 		}
 	}
 	else if (button.is_pressed())
 	{
-		current_state = UIEvent::MENU;
-		oled.clear();
+		transition_to(UIEvent::MENU);
 	}
 }
 
 void TaskUI::co2_setting_interaction()
 {
-	int isr_receive;
+	int encoder_receive;
 	int temp_co2_setting = co2_setting_display;
-	if (xQueueReceive(ui_queue, &isr_receive,0) == pdPASS)
+	if (xQueueReceive(ui_queue, &encoder_receive,0) == pdPASS)
 	{
-		if (button.is_pressed())
+		switch (encoder_receive)
 		{
-			//Return without any change
-			current_state = UIEvent::MENU;
-		}
-		else if (isr_receive == 1)
-		{
-			co2_setting_display += 10;
-			oled.clear_co2_display();
-		}
-		else if (isr_receive == -1)
-		{
-			co2_setting_display -= 10;
-			oled.clear_co2_display();
-		}
-		else if (isr_receive == 0)
-		{
-			//Save to EEPROM
-			//Send to controller
-			//Go back to main screen - menu
-			oled.clear();
-			current_state = UIEvent::MENU;
+			case EncoderEvent::CLOCKWISE:
+				co2_setting_display += 10;
+				oled.clear_co2_display();
+				break;
+			case EncoderEvent::ANTI_CLOCKWISE:
+				co2_setting_display -= 10;
+				oled.clear_co2_display();
+				break;
+			case EncoderEvent::PRESS:
+				//Save to EEPROM
+				eeprom.save_new_co2_setting(co2_setting_display);
+				//Send to controller
+				//Go back to main screen - menu
+				transition_to(UIEvent::MENU);
+				break;
 		}
 	}
 	else if (button.is_pressed())
 	{
-		oled.clear();
 		co2_setting_display = temp_co2_setting; //Reset co2 setting because it was not saved
-		current_state = UIEvent::MENU;
+		transition_to(UIEvent::MENU);
 	}
 }
 
@@ -119,8 +116,7 @@ void TaskUI::show_data_interaction()
 {
 	if (button.is_pressed())
 	{
-		oled.clear();
-		current_state = UIEvent::MENU;
+		transition_to(UIEvent::MENU);
 	}
 }
 

@@ -1,9 +1,9 @@
 #include "ActuatorController.h"
-/*
+
 ActuatorController::ActuatorController(const std::shared_ptr<ModbusClient> &client)
 	: ventilation_fan(client, 1, 0, true),
 	injection_valve(27,true,false, false)
-{}*/
+{}
 
 void ActuatorController::fan_set_power(float power)
 {
