@@ -46,6 +46,7 @@ class TaskUI : public ParentTask
 		Button button;
 		MemoryManager eeprom;
 		SystemStorage &storage;
+		SensorReading last_data{};
 
 
 		UIEvent current_state = UIEvent::MENU;

@@ -34,7 +34,12 @@ void TaskUI::task_runner()
 				oled.change_co2_setting(co2_setting_display);
 				break;
 			case UIEvent::SHOW_DATA:
-				oled.show_data();
+				SensorReading data = storage.get_data();
+				if (data!=last_data)
+				{
+					oled.show_data(data.co2_level_ppm, data.temp_celsius, data.humidity_percent, data.pressure_pa, data.co2_set_point);
+					last_data = data;
+				}
 				break;
 		}
 		handle_interaction();

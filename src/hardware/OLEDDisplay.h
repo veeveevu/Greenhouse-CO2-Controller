@@ -25,7 +25,7 @@ class OLEDDisplay {
 
 		void clear_co2_display();
 
-		void show_data();
+		void show_data(float co2_level, float temperature, float humidity, float pressure, float co2_setting);
 		int  get_current_select() const;
 
 	private:
@@ -33,7 +33,7 @@ class OLEDDisplay {
 		ssd1306os display;
 
 		//Menu
-		int current_select = 2;
+		int current_select = 1;
 		int menu_length = 2;
 		std::string menu[2] = {"1. View sensors data", "2. CO2 setting"};
 

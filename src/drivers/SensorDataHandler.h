@@ -11,7 +11,7 @@
 
 class SensorDataHandler {
 public:
-    explicit SensorDataHandler(const std::shared_ptr<ModbusClient>& client);
+    explicit SensorDataHandler(const std::shared_ptr<ModbusClient>& client, PressureSensor &pressure_sensor);
     void sensors_read();
     SensorReading return_sensor_data() const;
 
@@ -20,7 +20,7 @@ private:
     ModbusRegister temp_sensor;
     ModbusRegister humidity_sensor;
     ModbusRegister fan_counter_sensor;
-    //PressureSensor pressure_sensor;
+    PressureSensor &pressure_sensor;
 
     uint8_t fan_zero_reads = 0;
     SensorReading data;

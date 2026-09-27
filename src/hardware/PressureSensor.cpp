@@ -16,15 +16,12 @@ uint16_t PressureSensor::read_pressure_adc() const
 	return raw_adc;
 }
 
-void PressureSensor::read_pressure_pa()
+double PressureSensor::read_pressure_pa()
 {
 	uint16_t adc = read_pressure_adc();
 	pressure_value = adc * correction_factor;
-}
-
-double PressureSensor::get_pressure_value()
-{
 	return pressure_value;
 }
+
 
 

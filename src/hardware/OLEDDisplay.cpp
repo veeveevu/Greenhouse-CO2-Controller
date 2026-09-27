@@ -94,13 +94,24 @@ void OLEDDisplay::clear_co2_display()
 }
 
 
-void OLEDDisplay::show_data()
+void OLEDDisplay::show_data(float co2_level, float temperature, float humidity, float pressure, float co2_setting)
 {
-	display.text("CO2 level: ", 0, 0, 1);
-	display.text("Temperature: ", 0, 12, 1);
-	display.text("Humidity: ", 0, 24, 1);
-	display.text("Pressure: ", 0, 36, 1);
-	display.text("CO2 setting: ", 0, 48, 1);
+	char buffer[32];
+	snprintf(buffer, sizeof(buffer), "CO2 lvl: %.1f ppm", co2_level);
+	display.text(buffer, 0, 0, 1);
+
+	snprintf(buffer, sizeof(buffer), "Temp: %.1f C", temperature);
+	display.text(buffer, 0, 12, 1);
+
+	snprintf(buffer, sizeof(buffer), "Humidity: %.1f ", humidity);
+	display.text(buffer, 0, 24, 1);
+
+	snprintf(buffer, sizeof(buffer), "Pressure: %.1f Pa", pressure);
+	display.text(buffer, 0, 36, 1);
+
+	snprintf(buffer, sizeof(buffer), "CO2 setting: %.1f ", co2_setting);
+	display.text(buffer, 0, 48, 1);
+
 	display.show();
 }
 

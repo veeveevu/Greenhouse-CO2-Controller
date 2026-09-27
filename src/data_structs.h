@@ -17,6 +17,19 @@ struct SensorReading {
     uint16_t fan_pulse_counter = 0;
     bool is_fan_running = false;
 
+	bool operator==(const SensorReading &other) const
+	{
+		return (co2_level_ppm == other.co2_level_ppm) &&
+			   (temp_celsius == other.temp_celsius) &&
+			   (humidity_percent == other.humidity_percent) &&
+			   (pressure_pa == other.pressure_pa) &&
+			   (co2_set_point == other.co2_set_point);
+	}
+
+	bool operator!=(const SensorReading &other) const
+	{
+		return !(*this == other);
+	}
 };
 
 //gui cai nay cho queue cua UI
