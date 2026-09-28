@@ -17,7 +17,7 @@
 class SensorTask : public ParentTask
 {
 public:
-    SensorTask(const std::shared_ptr<ModbusClient>& client, QueueHandle_t sensor_queue, SystemStorage &storage);
+    SensorTask(const std::shared_ptr<ModbusClient>& client, QueueHandle_t sensor_queue, SystemStorage &storage, std::shared_ptr<PicoI2C> i2c);
 
 
 private:
@@ -25,6 +25,7 @@ private:
 
     SensorDataHandler handler;
     QueueHandle_t sensor_queue;
+		PressureSensor pressure_sensor_;
 	SystemStorage &storage;
 };
 
