@@ -37,23 +37,34 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
 #define BAUD_RATE 9600
 #define STOP_BITS 2 // for real system (pico simualtor also requires 2 stop bits)
 
+#define ROT_SW 12
+#define ROT_A 10
+#define ROT_B 11
+
 int main() {
     stdio_init_all();
+	printf("Boot\n");
+
 
     auto uart = std::make_shared<PicoOsUart>(UART_NR,UART_TX_PIN,UART_RX_PIN,BAUD_RATE,STOP_BITS);
 
     auto client = std::make_shared<ModbusClient>(uart);
     auto actuator = std::make_shared<ActuatorController>(client);
 	SystemStorage storage = SystemStorage();
-	auto i2c = std::make_shared<PicoI2C>(0, 100000);
+	auto i2c_0 = std::make_shared<PicoI2C>(0, 100000);
+	auto i2c_1 = std::make_shared<PicoI2C>(1, 400000);
+
 
     QueueHandle_t sensor_queue = xQueueCreate(1,sizeof(SensorReading));
     QueueHandle_t setpoint_queue = xQueueCreate(1, sizeof(Co2Setting));
     QueueHandle_t actuator_state_queue = xQueueCreate(1, sizeof(ActuatorState));
 
-    static SensorTask     sensor_task(client, sensor_queue,storage);
-    static ControllerTask controller_task(actuator, sensor_queue,setpoint_queue, actuator_state_queue,storage);
-	static TaskUI ui_task(i2c,storage);
+
+    auto sensor_task = SensorTask(client, sensor_queue,storage,i2c_1);
+    static  ControllerTask controller_task(actuator, sensor_queue,setpoint_queue, actuator_state_queue,storage);
+	static  TaskUI ui_task(i2c_0,i2c_1,storage);
+
+	static Encoder encoder(ROT_SW, ROT_A, ROT_B,ui_task.get_queue_handle());
 
     sensor_task.start();
     controller_task.start();
@@ -66,7 +77,8 @@ int main() {
     }
 }
 
-/* CODE CUA THAY KEIJO ========================================================================================
+/*
+//CODE CUA THAY KEIJO ========================================================================================
 #include "blinker.h"
 
 SemaphoreHandle_t gpio_sem;
@@ -175,7 +187,7 @@ int main()
     //xTaskCreate(gpio_task, "BUTTON", 256, (void *) nullptr, tskIDLE_PRIORITY + 1, nullptr);
     //xTaskCreate(serial_task, "UART1", 256, (void *) nullptr,
     //            tskIDLE_PRIORITY + 1, nullptr);
-#if 0
+#if 1
     xTaskCreate(modbus_task, "Modbus", 512, (void *) nullptr,
                 tskIDLE_PRIORITY + 1, nullptr);
 

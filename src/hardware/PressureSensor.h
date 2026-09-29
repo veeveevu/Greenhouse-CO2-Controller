@@ -12,7 +12,7 @@
 class PressureSensor
 {
 	public:
-		explicit PressureSensor(std::shared_ptr<PicoI2C> i2c_0) :i2c(i2c_0){};
+		explicit PressureSensor(std::shared_ptr<PicoI2C> i2c_1) :i2c(i2c_1){};
 		uint16_t read_pressure_adc () const;
 		double   read_pressure_pa();
 

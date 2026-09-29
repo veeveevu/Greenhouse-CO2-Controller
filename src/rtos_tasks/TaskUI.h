@@ -20,35 +20,43 @@ enum class UIEvent {MENU, CO2_SETTING, SHOW_DATA};
 class TaskUI : public ParentTask
 {
 	public:
-		TaskUI (std::shared_ptr<PicoI2C> i2c_0, SystemStorage &storage)
-		: ParentTask("UI Task",2048,tskIDLE_PRIORITY + 1),
-		oled(),
-		button(SW0),
-		eeprom(i2c_0),
-		storage(storage)
+		TaskUI (const std::shared_ptr<PicoI2C> &i2c_0, const std::shared_ptr<PicoI2C> &i2c_1, SystemStorage &storage)
+			: ParentTask("UI Task", 2048,tskIDLE_PRIORITY + 1),
+			  i2c_0(i2c_0),
+			  i2c_1(i2c_1),
+			  btn_sw(SW0),
+			  storage(storage)
+
 		{
 			ui_queue = xQueueCreate(20, sizeof(int));
 			configASSERT(ui_queue != NULL);
 		};
 
 		void task_runner() override;
-		void handle_interaction();
-		void transition_to(UIEvent new_state);
-		void menu_interaction();
-		void co2_setting_interaction();
-		void set_co2(int change);
-		void show_data_interaction();
+
+		void init();
+
+		void          handle_interaction();
+		void          transition_to(UIEvent new_state);
+		void          menu_interaction();
+		void          co2_setting_interaction();
+		void          set_co2(int change);
+		void          show_data_interaction();
 		QueueHandle_t get_queue_handle();
 
 	private:
 		QueueHandle_t ui_queue;
-		OLEDDisplay oled;
-		Button button;
-		MemoryManager eeprom;
+		std::unique_ptr<OLEDDisplay> oled;
+		std::unique_ptr<Button> button;
+		std::shared_ptr<MemoryManager> eeprom;
 		SystemStorage &storage;
 		SensorReading last_data{};
 
+		std::shared_ptr<PicoI2C> i2c_0;
+		std::shared_ptr<PicoI2C> i2c_1;
+		int btn_sw;
 
+		bool state_change = true;
 		UIEvent current_state = UIEvent::MENU;
 		int co2_setting_display = 1500;
 };

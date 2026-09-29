@@ -4,9 +4,11 @@
 
 #include "OLEDDisplay.h"
 
-OLEDDisplay::OLEDDisplay() :
-	oled_i2c(std::make_shared<PicoI2C>(1, 400000)),
-	display(oled_i2c){clear();}
+OLEDDisplay::OLEDDisplay(std::shared_ptr<PicoI2C> i2c_1) : oled_i2c(i2c_1), display(oled_i2c)
+{
+}
+
+
 
 void OLEDDisplay::clear() {
 	display.fill(0);
@@ -96,20 +98,21 @@ void OLEDDisplay::clear_co2_display()
 
 void OLEDDisplay::show_data(float co2_level, float temperature, float humidity, float pressure, float co2_setting)
 {
+	display.fill(0);
 	char buffer[32];
-	snprintf(buffer, sizeof(buffer), "CO2 lvl: %.1f ppm", co2_level);
+	snprintf(buffer, sizeof(buffer), "CO2: %.1f ppm", co2_level);
 	display.text(buffer, 0, 0, 1);
 
 	snprintf(buffer, sizeof(buffer), "Temp: %.1f C", temperature);
 	display.text(buffer, 0, 12, 1);
 
-	snprintf(buffer, sizeof(buffer), "Humidity: %.1f ", humidity);
+	snprintf(buffer, sizeof(buffer), "Hum: %.1f ", humidity);
 	display.text(buffer, 0, 24, 1);
 
-	snprintf(buffer, sizeof(buffer), "Pressure: %.1f Pa", pressure);
+	snprintf(buffer, sizeof(buffer), "Press: %.1f Pa", pressure);
 	display.text(buffer, 0, 36, 1);
 
-	snprintf(buffer, sizeof(buffer), "CO2 setting: %.1f ", co2_setting);
+	snprintf(buffer, sizeof(buffer), "CO2 set: %.1f ", co2_setting);
 	display.text(buffer, 0, 48, 1);
 
 	display.show();

@@ -14,6 +14,7 @@ SensorDataHandler::SensorDataHandler(const std::shared_ptr<ModbusClient>& client
 //read sensors
 void SensorDataHandler::sensors_read() {
 
+
     uint16_t raw_co2 = co2_sensor.read();
     auto co2_value = static_cast<int16_t>(raw_co2);
     data.co2_level_ppm = static_cast<float>(co2_value);
@@ -44,11 +45,12 @@ void SensorDataHandler::sensors_read() {
     }
 
 
+	/*
     std::cout << "CO2: " << data.co2_level_ppm << " ppm\n"
 		    << "Temperature: " << data.temp_celsius << " C\n"
 		    << "Humidity: " << data.humidity_percent << " %\n"
 		    << "Pressure: " << data.pressure_pa << " Pa\n"
-		    << "Fan pulse: " << data.fan_pulse_counter << '\n';
+		    << "Fan pulse: " << data.fan_pulse_counter << '\n';*/
 }
 
 SensorReading SensorDataHandler::return_sensor_data() const {

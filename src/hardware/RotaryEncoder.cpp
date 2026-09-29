@@ -1,8 +1,13 @@
 //
 // Created by Anh Huynh on 26.9.2026.
 //
+#define ROT_SW 12
+#define ROT_A 10
+#define ROT_B 11
 
 #include "RotaryEncoder.h"
+
+#include <cstdio>
 
 void Encoder::irq_rotate_handler(uint gpio, uint32_t event_mask)
 {

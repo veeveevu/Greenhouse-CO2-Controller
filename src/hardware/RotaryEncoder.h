@@ -4,6 +4,8 @@
 
 #ifndef GREENHOUSE_ROTARYENCODER_H
 #define GREENHOUSE_ROTARYENCODER_H
+#include <cstdio>
+
 #include "FreeRTOS.h"
 #include "GPIOPin.h"
 #include "queue.h"
@@ -43,11 +45,13 @@ class Encoder
 
 		static void rotary_callback (uint gpio, uint32_t event_mask)
 		{
+
 			if (instance)
 			{
 				instance -> irq_rotate_handler(gpio, event_mask);
 			}
 		}
+
 };
 
 #endif //GREENHOUSE_ROTARYENCODER_H

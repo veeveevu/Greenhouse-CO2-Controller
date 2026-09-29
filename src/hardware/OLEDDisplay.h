@@ -14,9 +14,10 @@
 
 class OLEDDisplay {
 	public:
-		OLEDDisplay();
+		OLEDDisplay(std::shared_ptr<PicoI2C> i2c_1);
 		OLEDDisplay(const OLEDDisplay &) = delete;
 
+		void init();
 		void clear();
 		void show_menu();
 		void increment_menu_select();
