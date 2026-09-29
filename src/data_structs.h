@@ -13,7 +13,7 @@ struct SensorReading {
     float humidity_percent = 0;
     float pressure_pa = 0;
 
-	int co2_set_point = 1500;
+	int co2_set_point;
     uint16_t fan_pulse_counter = 0;
     bool is_fan_running = false;
 

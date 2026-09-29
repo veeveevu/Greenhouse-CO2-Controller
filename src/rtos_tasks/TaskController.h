@@ -24,8 +24,7 @@ enum class ValveState {
 
 class ControllerTask : public ParentTask {
 public:
-    ControllerTask(const std::shared_ptr<ActuatorController>& actuator, QueueHandle_t sensor_queue,
-                   QueueHandle_t setpoint_queue, QueueHandle_t actuator_state_queue,
+    ControllerTask(const std::shared_ptr<ActuatorController>& actuator,
                    SystemStorage &storage);
 private:
     void task_runner() override;
@@ -34,14 +33,10 @@ private:
 
     void handle_co2(const SensorReading &data);
 
-    QueueHandle_t sensor_queue;
-    QueueHandle_t setpoint_queue;
-    QueueHandle_t actuator_state_queue;
 	SystemStorage &storage;
-
     ValveState valve_state = ValveState::CLOSED;
 
-    float co2_setpoint = 1500.0;
+    int co2_setpoint = 1500;
     TickType_t time_since_state_start = 0;
 
     bool safety_fan_mode = false;

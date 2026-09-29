@@ -29,9 +29,10 @@ void TaskUI::task_runner()
 
 
 	//Read from EEPROM and save
-	//eeprom -> save_new_co2_setting(1500);
-	eeprom -> read_co2_setting(reinterpret_cast<uint8_t *>(&co2_setting_display));
+	eeprom->read_co2_setting(reinterpret_cast<uint8_t *>(&co2_setting_display));
+	printf("EEPROM read, co2 set: %d\n",co2_setting_display);
 	storage.set_co2_point(co2_setting_display);
+	printf("Storage co2 set: %d\n", storage.get_data().co2_set_point);
 
 	while (true)
 	{
@@ -54,7 +55,7 @@ void TaskUI::task_runner()
 				break;
 		}
 		handle_interaction();
-		vTaskDelay(pdMS_TO_TICKS(10));
+		vTaskDelay(pdMS_TO_TICKS(50));
 	}
 }
 
@@ -130,6 +131,7 @@ void TaskUI::co2_setting_interaction()
 				//Save to EEPROM
 				eeprom->save_new_co2_setting(co2_setting_display);
 				//Send to controller
+				storage.set_co2_point(co2_setting_display);
 				//Go back to main screen - menu
 				transition_to(UIEvent::MENU);
 				break;
@@ -158,6 +160,8 @@ void TaskUI::set_co2(int change)
 
 void TaskUI::show_data_interaction()
 {
+	int encoder_receive;
+	xQueueReceive(ui_queue, &encoder_receive,0);
 	if (button->is_pressed())
 	{
 		transition_to(UIEvent::MENU);

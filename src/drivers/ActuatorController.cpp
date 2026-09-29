@@ -2,7 +2,7 @@
 
 ActuatorController::ActuatorController(const std::shared_ptr<ModbusClient> &client)
 	: ventilation_fan(client, 1, 0, true),
-	injection_valve(27,true,false, false)
+	injection_valve(27,false,false, false)
 {}
 
 void ActuatorController::fan_set_power(float power)
@@ -29,11 +29,13 @@ float ActuatorController::fan_get_power() const {
 
 void ActuatorController::valve_close()
 {
+	printf("========== VALVE CLOSED ==========\n");
 	injection_valve.write(false);
 }
 
 void ActuatorController::valve_open()
 {
+	printf("========== VALVE OPEN ==========\n");
 	injection_valve.write(true);
 }
 

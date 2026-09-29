@@ -55,13 +55,8 @@ int main() {
 	auto i2c_1 = std::make_shared<PicoI2C>(1, 400000);
 
 
-    QueueHandle_t sensor_queue = xQueueCreate(1,sizeof(SensorReading));
-    QueueHandle_t setpoint_queue = xQueueCreate(1, sizeof(Co2Setting));
-    QueueHandle_t actuator_state_queue = xQueueCreate(1, sizeof(ActuatorState));
-
-
-    auto sensor_task = SensorTask(client, sensor_queue,storage,i2c_1);
-    static  ControllerTask controller_task(actuator, sensor_queue,setpoint_queue, actuator_state_queue,storage);
+    static SensorTask sensor_task(client,storage,i2c_1);
+    static  ControllerTask controller_task(actuator, storage);
 	static  TaskUI ui_task(i2c_0,i2c_1,storage);
 
 	static Encoder encoder(ROT_SW, ROT_A, ROT_B,ui_task.get_queue_handle());

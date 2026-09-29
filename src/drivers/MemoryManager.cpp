@@ -21,8 +21,8 @@ void MemoryManager::read_network_setting(uint8_t *dest)
 
 void MemoryManager::save_new_co2_setting(int new_co2_setting)
 {
-	uint8_t save_data[sizeof(double)]; //8 bytes
-	std::memcpy(save_data,&new_co2_setting,sizeof(double));
+	uint8_t save_data[sizeof(int)]; //8 bytes
+	std::memcpy(save_data,&new_co2_setting,sizeof(int));
 
 	eeprom.write(save_data,default_payload,co2_setting_addr);
 }
