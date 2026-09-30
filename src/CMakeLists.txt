@@ -3,7 +3,11 @@ file(GLOB_RECURSE APP_SOURCES
         "${CMAKE_CURRENT_LIST_DIR}/*.c"
         "${CMAKE_CURRENT_LIST_DIR}/*.cc"
 )
-add_executable(GreenHouse ${APP_SOURCES})
+
+list(FILTER APP_SOURCES EXCLUDE REGEX "http_test\\.cpp$") #cái này trùng main của main chính nè
+
+add_executable(GreenHouse ${APP_SOURCES}
+        data_structs.h)
 #[[add_executable(${PROJECT_NAME}
         main.cpp
         lib/critical_section.cpp

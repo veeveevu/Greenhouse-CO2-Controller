@@ -10,7 +10,7 @@
 #include <string>
 #include "FreeRTOS.h"
 #include "queue.h"
-#include "Fmutex.h"
+#include "../lib/Fmutex.h"
 
 class PicoOsUart {
     friend void pico_uart0_handler(void);

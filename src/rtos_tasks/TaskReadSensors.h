@@ -6,8 +6,27 @@
 #define GREENHOUSE_TASKREADSENSORS_H
 
 
-class TaskReadSensors
+#include "ModbusClient.h"
+#include "ParentTask.h"
+#include "SensorDataHandler.h"
+#include "storage/SystemStorage.h"
+
+#define READING_PERIOD_MS 1000
+
+
+class SensorTask : public ParentTask
 {
+public:
+    SensorTask(const std::shared_ptr<ModbusClient>& client, SystemStorage &storage, std::shared_ptr<PicoI2C> i2c);
+
+
+private:
+    void task_runner() override;
+
+    SensorDataHandler handler;
+    QueueHandle_t sensor_queue;
+		PressureSensor pressure_sensor_;
+	SystemStorage &storage;
 };
 
 

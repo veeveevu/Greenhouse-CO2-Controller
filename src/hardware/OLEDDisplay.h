@@ -6,9 +6,39 @@
 #define GREENHOUSE_OLEDDISPLAY_H
 
 
-class OLEDDisplay
-{
-};
+#include <string>
+#include <memory>
+#include "ssd1306os.h"
+#include "PicoI2C.h"
+#include "PicoI2C.h"
 
+class OLEDDisplay {
+	public:
+		OLEDDisplay(std::shared_ptr<PicoI2C> i2c_1);
+		OLEDDisplay(const OLEDDisplay &) = delete;
+
+		void init();
+		void clear();
+		void show_menu();
+		void increment_menu_select();
+		void decrement_menu_select();
+		void change_co2_setting(int co2_setting);
+
+		void clear_co2_display();
+
+		void show_data(float co2_level, float temperature, float humidity, float pressure, float co2_setting);
+		int  get_current_select() const;
+
+	private:
+		std::shared_ptr<PicoI2C> oled_i2c;
+		ssd1306os display;
+
+		//Menu
+		int current_select = 1;
+		int menu_length = 2;
+		std::string menu[2] = {"1. View sensors data", "2. CO2 setting"};
+
+
+};
 
 #endif //GREENHOUSE_OLEDDISPLAY_H

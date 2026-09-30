@@ -79,3 +79,9 @@ void GPIOPin::write(bool value) const
 	gpio_put(pin,value);
 }
 
+int GPIOPin::get_pin()
+{
+	return pin;
+}
+
+

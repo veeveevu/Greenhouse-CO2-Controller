@@ -1,14 +1,23 @@
 #include <iostream>
 #include <sstream>
 #include "FreeRTOS.h"
+#include "TaskController.h"
 #include "task.h"
 #include "semphr.h"
 #include "hardware/gpio.h"
 #include "PicoOsUart.h"
 #include "ssd1306.h"
 
+#include "SensorDataHandler.h"
+#include "TaskConsole.h"
+#include "TaskReadSensors.h"
+#include "TaskUI.h"
+#include "lib/modbus/ModbusRegister.h"
 
 #include "hardware/timer.h"
+#include "pico/stdio.h"
+#include "pico/stdlib.h"
+
 extern "C" {
 uint32_t read_runtime_ctr(void) {
     return timer_hw->timerawl;
@@ -23,6 +32,51 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
 }
 }
 
+#define UART_NR 1
+#define UART_TX_PIN 4
+#define UART_RX_PIN 5
+#define BAUD_RATE 9600
+#define STOP_BITS 2 // for real system (pico simualtor also requires 2 stop bits)
+
+#define ROT_SW 12
+#define ROT_A 10
+#define ROT_B 11
+
+int main() {
+    stdio_init_all();
+	printf("Boot\n");
+
+
+    auto uart = std::make_shared<PicoOsUart>(UART_NR,UART_TX_PIN,UART_RX_PIN,BAUD_RATE,STOP_BITS);
+    auto client = std::make_shared<ModbusClient>(uart);
+
+    auto actuator = std::make_shared<ActuatorController>(client);
+	SystemStorage storage = SystemStorage();
+	auto i2c_0 = std::make_shared<PicoI2C>(0, 100000);
+	auto i2c_1 = std::make_shared<PicoI2C>(1, 400000);
+
+
+    static SensorTask sensor_task(client,storage,i2c_1);
+    static  ControllerTask controller_task(actuator, storage);
+	static  TaskUI ui_task(i2c_0,i2c_1,storage);
+	static TaskConsole console_task;
+
+	static Encoder encoder(ROT_SW, ROT_A, ROT_B,ui_task.get_queue_handle());
+
+    sensor_task.start();
+    controller_task.start();
+	ui_task.start();
+	console_task.start();
+
+    vTaskStartScheduler();
+
+    while (true)
+    {
+    }
+}
+
+/*
+//CODE CUA THAY KEIJO ========================================================================================
 #include "blinker.h"
 
 SemaphoreHandle_t gpio_sem;
@@ -127,10 +181,10 @@ int main()
     printf("\nBoot\n");
 
     gpio_sem = xSemaphoreCreateBinary();
-    //xTaskCreate(blink_task, "LED_1", 256, (void *) &lp1, tskIDLE_PRIORITY + 1, nullptr);
-    //xTaskCreate(gpio_task, "BUTTON", 256, (void *) nullptr, tskIDLE_PRIORITY + 1, nullptr);
-    //xTaskCreate(serial_task, "UART1", 256, (void *) nullptr,
-    //            tskIDLE_PRIORITY + 1, nullptr);
+    xTaskCreate(blink_task, "LED_1", 256, (void *) &lp1, tskIDLE_PRIORITY + 1, nullptr);
+    xTaskCreate(gpio_task, "BUTTON", 256, (void *) nullptr, tskIDLE_PRIORITY + 1, nullptr);
+    xTaskCreate(serial_task, "UART1", 256, (void *) nullptr,
+                tskIDLE_PRIORITY + 1, nullptr);
 #if 0
     xTaskCreate(modbus_task, "Modbus", 512, (void *) nullptr,
                 tskIDLE_PRIORITY + 1, nullptr);
@@ -139,7 +193,7 @@ int main()
     xTaskCreate(display_task, "SSD1306", 512, (void *) nullptr,
                 tskIDLE_PRIORITY + 1, nullptr);
 #endif
-#if 1
+#if 0
     xTaskCreate(i2c_task, "i2c test", 512, (void *) nullptr,
                 tskIDLE_PRIORITY + 1, nullptr);
 #endif
@@ -265,3 +319,4 @@ void i2c_task(void *param) {
 
 
 }
+*/
