@@ -11,7 +11,7 @@
 #include "SensorDataHandler.h"
 #include "storage/SystemStorage.h"
 
-#define READING_PERIOD_MS 5000
+#define READING_PERIOD_MS 1000
 
 
 class SensorTask : public ParentTask

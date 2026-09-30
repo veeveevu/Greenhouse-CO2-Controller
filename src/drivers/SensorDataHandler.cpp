@@ -18,14 +18,15 @@ void SensorDataHandler::sensors_read() {
     uint16_t raw_co2 = co2_sensor.read();
     data.co2_level_ppm = static_cast<float>(raw_co2);
 
+
     uint16_t raw_temp = temp_sensor.read();
     data.temp_celsius = static_cast<float>(raw_temp) / 10.1f;
 
     uint16_t raw_humidity = humidity_sensor.read();
-    data.humidity_percent = static_cast<float>(raw_humidity) / 10.0f;
+    data.humidity_percent = static_cast<float>(raw_humidity) / 10.1f;
 
-	double pressure_value = pressure_sensor.read_pressure_pa();
-	data.pressure_pa = static_cast<float>(pressure_value) / 10.0f;
+	float pressure_value = pressure_sensor.read_pressure_pa();
+	data.pressure_pa = (pressure_value) / 1.1f;
 
     data.fan_pulse_counter = fan_counter_sensor.read();
 
@@ -42,12 +43,12 @@ void SensorDataHandler::sensors_read() {
     }
 
 
-
+/*
     std::cout << "CO2: " << data.co2_level_ppm << " ppm\n"
 		    << "Temperature: " << data.temp_celsius << " C\n"
 		    << "Humidity: " << data.humidity_percent << " %\n"
 		    << "Pressure: " << data.pressure_pa << " Pa\n"
-		    << "Fan pulse: " << data.fan_pulse_counter << '\n';
+		    << "Fan pulse: " << data.fan_pulse_counter << '\n';*/
 
 }
 

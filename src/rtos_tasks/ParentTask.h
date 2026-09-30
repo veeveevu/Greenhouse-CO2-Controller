@@ -4,6 +4,8 @@
 
 #ifndef GREENHOUSE_PARENTTASK_H
 #define GREENHOUSE_PARENTTASK_H
+#include "FreeRTOS.h"
+#include "task.h"
 
 
 class ParentTask

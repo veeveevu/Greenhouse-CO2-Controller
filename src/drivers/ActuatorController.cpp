@@ -29,13 +29,13 @@ float ActuatorController::fan_get_power() const {
 
 void ActuatorController::valve_close()
 {
-	printf("========== VALVE CLOSED ==========\n");
+	//printf("========== VALVE CLOSED ==========\n");
 	injection_valve.write(false);
 }
 
 void ActuatorController::valve_open()
 {
-	printf("========== VALVE OPEN ==========\n");
+	//printf("========== VALVE OPEN ==========\n");
 	injection_valve.write(true);
 }
 

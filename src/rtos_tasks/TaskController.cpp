@@ -22,6 +22,8 @@ void ControllerTask::handle_co2(const SensorReading &data) {
     TickType_t now = xTaskGetTickCount();
 
     //co2 > 2000 -> close valve -> max fan
+	//printf("Co2: %f", data.co2_level_ppm);
+	//printf("Limit: %d", CO2_SAFETY_LIMIT);
     if (data.co2_level_ppm > CO2_SAFETY_LIMIT) {
         safety_fan_mode = true;
         controller->valve_close();
@@ -31,12 +33,15 @@ void ControllerTask::handle_co2(const SensorReading &data) {
     }
 
     if (safety_fan_mode) {
-        controller->fan_set_power(100.0);
-
-        if (data.co2_level_ppm <= co2_setpoint) {
+        if (data.co2_level_ppm <= CO2_SAFETY_LIMIT) {
             controller->fan_turn_off();
             safety_fan_mode = false;
         }
+    	else
+    	{
+    		controller->fan_set_power(100.0);
+
+    	}
         return;
     }
 
