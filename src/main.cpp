@@ -13,6 +13,10 @@
 #include "TaskReadSensors.h"
 #include "TaskUI.h"
 #include "lib/modbus/ModbusRegister.h"
+#include "IPStack.h"
+#include "cloud/secrets.h"
+#include "cloud/ThingSpeak.h"
+#include "cloud/WifiManager.h"
 
 #include "hardware/timer.h"
 #include "pico/stdio.h"
@@ -41,6 +45,7 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
 #define ROT_SW 12
 #define ROT_A 10
 #define ROT_B 11
+
 
 int main() {
     stdio_init_all();
@@ -74,6 +79,7 @@ int main() {
     {
     }
 }
+
 
 /*
 //CODE CUA THAY KEIJO ========================================================================================

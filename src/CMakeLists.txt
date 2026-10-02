@@ -7,7 +7,15 @@ file(GLOB_RECURSE APP_SOURCES
 list(FILTER APP_SOURCES EXCLUDE REGEX "http_test\\.cpp$") #cái này trùng main của main chính nè
 
 add_executable(GreenHouse ${APP_SOURCES}
-        data_structs.h)
+        data_structs.h
+        rtos_tasks/TaskCloud.cpp
+        rtos_tasks/TaskCloud.h
+        cloud/WifiManager.cpp
+        cloud/WifiManager.h
+        cloud/ThingSpeak.cpp
+        cloud/ThingSpeak.h
+        cloud/secrets.h
+        lib/ipstack/tls_common.h)
 #[[add_executable(${PROJECT_NAME}
         main.cpp
         lib/critical_section.cpp

@@ -85,7 +85,8 @@ void test_task(void *param) {
     unsigned char *buffer = new unsigned char[BUFSIZE];
     // todo: Add failed connection handling
     //IPStack ipstack("SmartIotMQTT", "SmartIot"); // example
-    IPStack ipstack(WIFI_SSID, WIFI_PASSWORD); // Set env in CLion CMAKE setting
+    IPStack ipstack("TP-Link_FFDC", "61172937");
+    //IPStack ipstack(WIFI_SSID, WIFI_PASSWORD); // Set env in CLion CMAKE setting
 
     const uint led_pin = 22;
     // Initialize LED pin
