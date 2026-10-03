@@ -2,13 +2,6 @@
 #define GREENHOUSE_THINGSPEAK_H
 #include "IPStack.h"
 
-struct ThingSpeakData {
-    float co2_ppm = 0; // field1
-    float humidity = 0; // field2
-    float temperature = 0; // field3
-    float fan_percent = 0; // field4
-    int co2_setpoint = 0; // field5
-};
 
 class ThingSpeak {
 public:

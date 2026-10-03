@@ -79,8 +79,9 @@ static err_t tls_client_poll(void *arg, struct altcp_pcb *pcb) {
 static void tls_client_err(void *arg, err_t err) {
     TLS_CLIENT_T *state = (TLS_CLIENT_T*)arg;
     printf("tls_client_err %d\n", err);
-    tls_client_close(state);
+    state->pcb = NULL;
     state->error = PICO_ERROR_GENERIC;
+    state->complete = true;
 }
 
 static err_t tls_client_recv(void *arg, struct altcp_pcb *pcb, struct pbuf *p, err_t err) {
@@ -137,7 +138,6 @@ static void tls_client_connect_to_server_ip(const ip_addr_t *ipaddr, TLS_CLIENT_
 {
     err_t err;
     u16_t port = 443;
-    //u16_t port = 21883; // Joe's secure MQTT
     //u16_t port = 8883; // secure MQTT
 
     printf("connecting to server IP %s port %d\n", ipaddr_ntoa(ipaddr), port);
@@ -228,7 +228,7 @@ bool tls_https_request(const uint8_t *cert, size_t cert_len,
 
     struct altcp_tls_config *cfg = altcp_tls_create_config_client(cert, cert_len);
     if (!cfg) {
-        printf("[TLS] failed to create config (cert sai?)\n");
+        printf("[TLS] failed to create config\n");
         return false;
     }
 

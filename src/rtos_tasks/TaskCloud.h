@@ -15,8 +15,7 @@
 
 class TaskCloud : public ParentTask {
 public:
-    TaskCloud(
-        SystemStorage &storage);
+    TaskCloud(SystemStorage &storage);
 private:
     void task_runner() override;
 
