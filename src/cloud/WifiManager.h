@@ -6,6 +6,7 @@
 class WifiManager {
 public:
     WifiManager(const char *ssid_in, const char *pw_in);
+    bool init();
     bool connect();
     bool is_connected() const;
 private:

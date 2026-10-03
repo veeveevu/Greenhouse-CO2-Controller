@@ -9,13 +9,11 @@ CloudTask::CloudTask(SystemStorage& storage, const std::shared_ptr<ThingSpeak>& 
 
 
 void CloudTask::task_runner() {
-    if (cyw43_arch_init()) {
-        printf("[Cloud] cyw43 init failed\n");
-        vTaskDelete(nullptr);
-    }
-    cyw43_arch_enable_sta_mode();
-
     WifiManager wifi(WIFI_ID, WIFI_PWD);
+    if (!wifi.init()) {
+        vTaskSuspend(NULL);
+    }
+
     const uint8_t thingspeak_cert[] = THINGSPEAK_CERT;
     const size_t thingspeak_cert_len = sizeof(thingspeak_cert);
     ThingSpeak ts(THINGSPEAK_WRITE_KEY, THINGSPEAK_TALKBACK_ID, THINGSPEAK_TALKBACK_KEY, thingspeak_cert, thingspeak_cert_len);
