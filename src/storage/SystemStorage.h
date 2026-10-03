@@ -15,6 +15,8 @@ class SystemStorage
 		SensorReading get_data();
 		void update_data(SensorReading new_data);
 
+		void update_fan_speed(float new_fan_speed);
+
 		void set_co2_point(int new_co2_point);
 
 	private:

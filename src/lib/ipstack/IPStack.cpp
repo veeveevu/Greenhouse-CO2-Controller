@@ -57,6 +57,11 @@ struct DNSResult
 	err_t error;
 };
 
+bool IPStack::is_connected()
+{
+	return connected;
+}
+
 static void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
 {
 	DNSResult* result = (DNSResult*)callback_arg;

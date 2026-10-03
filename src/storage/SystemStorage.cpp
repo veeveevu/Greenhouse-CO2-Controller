@@ -31,8 +31,16 @@ void SystemStorage::update_data(SensorReading new_data)
 		data.humidity_percent = new_data.humidity_percent;
 		data.pressure_pa = new_data.pressure_pa;
 		data.fan_pulse_counter = new_data.fan_pulse_counter;
+		data.fan_speed = new_data.fan_speed;
 		data.is_fan_running = new_data.is_fan_running;
 		xSemaphoreGive(mutex);
+	}
+}
+void SystemStorage::update_fan_speed(float new_fan_speed)
+{
+	if (xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE)
+	{
+		data.fan_speed = new_fan_speed;
 	}
 }
 

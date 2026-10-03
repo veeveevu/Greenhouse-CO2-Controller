@@ -24,7 +24,7 @@ private:
 
     SystemStorage &storage;
     //std::shared_ptr<ThingSpeak> thingspeak;
-		std::unique_ptr<WifiManager> wifi_manager;
+	std::unique_ptr<WifiManager> wifi_manager;
 };
 
 #endif //GREENHOUSE_TASKCLOUD_H

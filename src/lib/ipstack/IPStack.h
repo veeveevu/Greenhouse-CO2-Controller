@@ -18,10 +18,13 @@ class IPStack {
 public:
     IPStack(const char *ssid, const char *pw);
     int connect(const char *hostname, int port);
+
+    bool is_connected();
+
     int connect(uint32_t hostname, int port);
-    int read(unsigned char *buffer, int len, int timeout);
-    int write(unsigned char *buffer, int len, int timeout);
-    int disconnect();
+    int  read(unsigned char *buffer, int len, int timeout);
+    int  write(unsigned char *buffer, int len, int timeout);
+    int  disconnect();
     // lwip callback functions
     static err_t tcp_client_sent(void *arg, struct tcp_pcb *tpcb, u16_t len);
     static err_t tcp_client_poll(void *arg, struct tcp_pcb *tpcb) ;

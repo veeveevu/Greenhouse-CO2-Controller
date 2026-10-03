@@ -15,6 +15,7 @@ struct SensorReading {
 
 	int co2_set_point;
     uint16_t fan_pulse_counter = 0;
+	float fan_speed = 0;
     bool is_fan_running = false;
 
 	bool operator==(const SensorReading &other) const

@@ -38,7 +38,6 @@ void ControllerTask::handle_co2(const SensorReading &data) {
     	else
     	{
     		controller->fan_set_power(100.0);
-
     	}
         return;
     }

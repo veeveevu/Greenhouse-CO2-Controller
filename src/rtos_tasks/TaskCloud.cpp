@@ -15,25 +15,8 @@ void TaskCloud::task_runner() {
     //const size_t thingspeak_cert_len = sizeof(thingspeak_cert);
     //ThingSpeak ts(THINGSPEAK_WRITE_KEY, THINGSPEAK_TALKBACK_ID, THINGSPEAK_TALKBACK_KEY, thingspeak_cert, thingspeak_cert_len);
 	while (true) {
-		/*
-	    if (!wifi.is_connected()) {
-	        if (!wifi.connect()) {
-	            vTaskDelay(pdMS_TO_TICKS(1000));
-	            continue;
-	        }
-	    }
-		else
-		{
-			printf("Connected to Wifi\n");
-		}
-
-	    //gửi data mới nhất
-	    //lệnh ts.send()
-
-	    //check talkback coi có lệnh đổi setpoint?
-	    //lệnh ts.receive_setpoint(sp)*/
-
-	    //
+		SensorReading data = storage.get_data();
+		wifi_manager->send_data(data);
 	    vTaskDelay(pdMS_TO_TICKS(15000));
 	}
 }
