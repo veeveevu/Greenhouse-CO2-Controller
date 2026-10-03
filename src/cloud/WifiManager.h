@@ -2,6 +2,9 @@
 #define GREENHOUSE_WIFIMANAGGER_H
 
 #define WIFI_TIMEOUT_MS 10000 //10s
+#include <memory>
+
+#include "IPStack.h"
 
 class WifiManager {
 public:
@@ -10,8 +13,10 @@ public:
     bool connect();
     bool is_connected() const;
 private:
-    char ssid[33];
-    char password[64];
+    const char *                   ssid;
+    const char *                   password;
+	std::unique_ptr<IPStack> ip_stack;
+
 };
 
 #endif //GREENHOUSE_WIFIMANAGGER_H

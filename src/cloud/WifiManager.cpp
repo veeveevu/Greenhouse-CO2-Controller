@@ -3,11 +3,8 @@
 #include <cstring>
 #include "IPStack.h"
 
-WifiManager::WifiManager(const char *ssid_in, const char *pw_in) {
-    std::strncpy(ssid, ssid_in, sizeof(ssid) - 1);
-    ssid[sizeof(ssid) - 1] = '\0';
-    std::strncpy(password, pw_in, sizeof(password) - 1);
-    password[sizeof(password) - 1] = '\0';
+WifiManager::WifiManager(const char *ssid_in, const char *pw_in) : ssid(ssid_in), password(pw_in) {
+    ip_stack = std::make_unique<IPStack>(ssid, password);
 }
 bool WifiManager::init() {
 

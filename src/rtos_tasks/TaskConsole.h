@@ -18,7 +18,7 @@ class TaskConsole : public ParentTask
 		TaskConsole();
 		void task_runner() override;
 	private:
-		std::unique_ptr<PicoOsUart> uart_;
+		std::shared_ptr<PicoOsUart> uart_;
 
 };
 

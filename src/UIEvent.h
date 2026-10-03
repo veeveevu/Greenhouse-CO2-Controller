@@ -1,0 +1,9 @@
+//
+// Created by Anh Huynh on 2.10.2026.
+//
+
+#ifndef GREENHOUSE_UIEVENT_H
+#define GREENHOUSE_UIEVENT_H
+
+enum class UIEvent {MENU, CO2_SETTING, SHOW_DATA, SETTINGS, NETWORK};
+#endif //GREENHOUSE_UIEVENT_H

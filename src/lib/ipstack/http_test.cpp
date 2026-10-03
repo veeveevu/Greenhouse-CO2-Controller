@@ -8,17 +8,25 @@
 #include "IPStack.h"
 
 #include "hardware/timer.h"
-/*
+
+// stack overflow check
+extern "C" {
+	void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
+		if (pcTaskName != NULL) panic("Stack overflow: %s",pcTaskName);
+		else panic("Stack overflow of unnamed task");
+	}
+}
+
 extern "C" {
 uint32_t read_runtime_ctr(void) {
     return timer_hw->timerawl;
 }
-}*/
+}
 
 
 #if 1
-#define HTTP_SERVER        "3.224.58.169"
-//#define HTTP_SERVER        "api.thingspeak.com"
+//#define HTTP_SERVER        "3.224.58.169"
+#define HTTP_SERVER        "api.thingspeak.com"
 #define BUFSIZE 2048
 #endif
 
@@ -85,7 +93,7 @@ void test_task(void *param) {
     unsigned char *buffer = new unsigned char[BUFSIZE];
     // todo: Add failed connection handling
     //IPStack ipstack("SmartIotMQTT", "SmartIot"); // example
-    IPStack ipstack("TP-Link_FFDC", "61172937");
+    IPStack ipstack("DNA-WIFI-9038", "37185865");
     //IPStack ipstack(WIFI_SSID, WIFI_PASSWORD); // Set env in CLion CMAKE setting
 
     const uint led_pin = 22;
@@ -121,7 +129,7 @@ void test_task(void *param) {
 }
 
 
-/*
+
 int main()
 {
     stdio_init_all();
@@ -139,4 +147,3 @@ int main()
 
     while(true){};
 }
-*/

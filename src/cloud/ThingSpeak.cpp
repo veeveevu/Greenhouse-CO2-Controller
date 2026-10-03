@@ -67,6 +67,7 @@ bool ThingSpeak::receive_setpoint(int &setpoint) {
     }
 
     //lấy từ response setpoint
+	return false;
 
 }
 

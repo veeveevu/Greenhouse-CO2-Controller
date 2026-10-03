@@ -9,9 +9,6 @@
 #define CO2_CHANGE 10
 #define CO2_LOWER_LIM 0
 
-
-
-
 namespace EncoderEvent
 {
 	constexpr int CLOCKWISE = 1;
@@ -36,26 +33,31 @@ void TaskUI::task_runner()
 
 	while (true)
 	{
-		switch (current_state)
+		if (state_change || current_state == UIEvent::SHOW_DATA)
 		{
-			case UIEvent::MENU:
-				oled->show_menu();
-				break;
-			case UIEvent::CO2_SETTING:
-				oled->change_co2_setting(co2_setting_display);
-				break;
-			case UIEvent::SHOW_DATA:
-				SensorReading data = storage.get_data();
-				if (data!=last_data)
-				{
-					oled->show_data(data.co2_level_ppm, data.temp_celsius, data.humidity_percent, data.pressure_pa, data.co2_set_point);
-					last_data = data;
-				}
+			switch (current_state)
+			{
+				case UIEvent::MENU:
+					oled->show_menu();
+					break;
+				case UIEvent::CO2_SETTING:
+					oled->change_co2_setting(co2_setting_display);
+					break;
+				case UIEvent::SHOW_DATA:
+					SensorReading data = storage.get_data();
+					if (data!=last_data)
+					{
+						oled->show_data(data.co2_level_ppm, data.temp_celsius, data.humidity_percent, data.pressure_pa, data.co2_set_point);
+						last_data = data;
+					}
 
-				break;
+					break;
+			}
+			state_change = false;
 		}
+
 		handle_interaction();
-		vTaskDelay(pdMS_TO_TICKS(50));
+		vTaskDelay(pdMS_TO_TICKS(1));
 	}
 }
 
@@ -92,10 +94,12 @@ void TaskUI::menu_interaction()
 		switch (encoder_receive)
 		{
 			case EncoderEvent::CLOCKWISE:
-				oled->increment_menu_select();
+				oled->increment_menu_select(current_state);
+				state_change = true;
 				break;
 			case EncoderEvent::ANTI_CLOCKWISE:
 				oled->decrement_menu_select();
+				state_change = true;
 				break;
 			case EncoderEvent::PRESS:
 				current_state = oled->get_current_select() == 1 ? UIEvent::SHOW_DATA : UIEvent::CO2_SETTING;
@@ -122,10 +126,12 @@ void TaskUI::co2_setting_interaction()
 			case EncoderEvent::CLOCKWISE:
 				set_co2(CO2_CHANGE);
 				oled->clear_co2_display();
+				state_change = true;
 				break;
 			case EncoderEvent::ANTI_CLOCKWISE:
 				set_co2(-CO2_CHANGE);
 				oled->clear_co2_display();
+				state_change = true;
 				break;
 			case EncoderEvent::PRESS:
 				//Save to EEPROM

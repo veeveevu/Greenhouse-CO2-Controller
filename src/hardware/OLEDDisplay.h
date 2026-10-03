@@ -8,19 +8,33 @@
 
 #include <string>
 #include <memory>
+#include <vector>
+
 #include "ssd1306os.h"
 #include "PicoI2C.h"
-#include "PicoI2C.h"
+#include "UIEvent.h"
+
+struct menuItem
+{
+	std::string name;
+	std::vector<std::string> menu_options;
+	int menu_length;
+};
 
 class OLEDDisplay {
 	public:
 		OLEDDisplay(std::shared_ptr<PicoI2C> i2c_1);
 		OLEDDisplay(const OLEDDisplay &) = delete;
 
-		void init();
 		void clear();
+
+		void show_options(int option_length, std::vector<std::string> options);
+
 		void show_menu();
-		void increment_menu_select();
+
+		void show_network_setting();
+
+		void increment_menu_select(UIEvent current_state);
 		void decrement_menu_select();
 		void change_co2_setting(int co2_setting);
 
@@ -35,10 +49,16 @@ class OLEDDisplay {
 
 		//Menu
 		int current_select = 1;
-		int menu_length = 2;
-		std::string menu[2] = {"1. View sensors data", "2. CO2 setting"};
 
+		menuItem main_menu{
+		"Main menu",
+		{"1. View sensors data", "2. CO2 setting", "3. Network settings", "4. Factory reset"},
+		4};
 
+		menuItem network_menu{
+		"Network menu",
+		{"1. Connect to new network", "Connect to known network"},
+		2};
 };
 
 #endif //GREENHOUSE_OLEDDISPLAY_H

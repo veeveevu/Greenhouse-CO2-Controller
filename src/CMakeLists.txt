@@ -6,7 +6,9 @@ file(GLOB_RECURSE APP_SOURCES
 
 list(FILTER APP_SOURCES EXCLUDE REGEX "http_test\\.cpp$") #cái này trùng main của main chính nè
 
-add_executable(GreenHouse ${APP_SOURCES}
+add_executable(${PROJECT_NAME} ${APP_SOURCES})
+
+#[[add_executable(GreenHouse ${APP_SOURCES}
         data_structs.h
         rtos_tasks/TaskCloud.cpp
         rtos_tasks/TaskCloud.h
@@ -15,7 +17,7 @@ add_executable(GreenHouse ${APP_SOURCES}
         cloud/ThingSpeak.cpp
         cloud/ThingSpeak.h
         cloud/secrets.h
-        lib/ipstack/tls_common.h)
+        lib/ipstack/tls_common.h)]]
 #[[add_executable(${PROJECT_NAME}
         main.cpp
         lib/critical_section.cpp
@@ -80,6 +82,7 @@ target_link_libraries(${ProjectName}
         pico_cyw43_arch_lwip_sys_freertos
         pico_lwip_mbedtls
         pico_mbedtls
+        pico_lwip
 
 )
 

@@ -10,21 +10,21 @@
 #include "storage/SystemStorage.h"
 #include "cloud/secrets.h"
 #include "cloud/ThingSpeak.h"
+#include "cloud/WifiManager.h"
 
 
-class CloudTask : public ParentTask {
+class TaskCloud : public ParentTask {
 public:
-    CloudTask(
-        SystemStorage &storage,
-        const std::shared_ptr<ThingSpeak> &thingspeak
-    );
+    TaskCloud(
+        SystemStorage &storage);
 private:
     void task_runner() override;
 
     void process_command(const char *command);
 
     SystemStorage &storage;
-    std::shared_ptr<ThingSpeak> thingspeak;
+    //std::shared_ptr<ThingSpeak> thingspeak;
+		std::unique_ptr<WifiManager> wifi_manager;
 };
 
 #endif //GREENHOUSE_TASKCLOUD_H

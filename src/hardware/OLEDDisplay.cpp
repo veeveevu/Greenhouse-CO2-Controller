@@ -8,53 +8,44 @@ OLEDDisplay::OLEDDisplay(std::shared_ptr<PicoI2C> i2c_1) : oled_i2c(i2c_1), disp
 {
 }
 
-
-
 void OLEDDisplay::clear() {
 	display.fill(0);
 	display.show();
 }
-
-void OLEDDisplay::show_menu()
+void OLEDDisplay::show_options(int option_length, std::vector<std::string> options)
 {
 	int x = 0;
 	int y = 1;
-	for ( int i = 0; i < menu_length; i++)
+
+	int num_visible_line = 5;
+	int i = 0;
+	for ( ; i < option_length; i++)
 	{
 		//Highlight the option to be selected
 		bool selected = ((current_select -1) == i);
 		if (selected)
 		{
 			display.rect(x,y-1,125,10,1,1);
-			display.text(menu[i],x, y, 0);
+			display.text(options[i],x, y, 0);
 		}
 
 		//Show the options that are not highlighted
 		else
 		{
-			display.text(menu[i],x, y, 1);
+			display.text(options[i],x, y, 1);
 		}
 		y += 12;
 	}
 	display.show();
 }
 
-void OLEDDisplay::increment_menu_select()
+void OLEDDisplay::show_menu()
 {
-	if (current_select < menu_length)
-	{
-		current_select++;
-		clear();
-	}
+	show_options(main_menu.menu_length,main_menu.menu_options);
 }
-
-void OLEDDisplay::decrement_menu_select()
+void OLEDDisplay::show_network_setting()
 {
-	if (current_select > 1)
-	{
-		current_select--;
-		clear();
-	}
+	show_options(network_menu.menu_length, network_menu.menu_options);
 }
 
 void OLEDDisplay::change_co2_setting(int co2_setting)
@@ -90,11 +81,6 @@ void OLEDDisplay::change_co2_setting(int co2_setting)
 	display.show();
 }
 
-void OLEDDisplay::clear_co2_display()
-{
-	display.rect(40,14,45,10,0,true);
-}
-
 
 void OLEDDisplay::show_data(float co2_level, float temperature, float humidity, float pressure, float co2_setting)
 {
@@ -117,6 +103,41 @@ void OLEDDisplay::show_data(float co2_level, float temperature, float humidity, 
 
 	display.show();
 }
+
+
+void OLEDDisplay::increment_menu_select(UIEvent current_state)
+{
+	int option_length;
+	if (current_state == UIEvent::MENU)
+	{
+		option_length = main_menu.menu_length;
+	}
+	else if (current_state == UIEvent::NETWORK)
+	{
+		option_length = network_menu.menu_length;
+	}
+	if (current_select < option_length)
+	{
+		current_select++;
+		clear();
+	}
+}
+
+void OLEDDisplay::decrement_menu_select()
+{
+	if (current_select > 1)
+	{
+		current_select--;
+		clear();
+	}
+}
+
+
+void OLEDDisplay::clear_co2_display()
+{
+	display.rect(40,14,45,10,0,true);
+}
+
 
 int OLEDDisplay::get_current_select() const
 {

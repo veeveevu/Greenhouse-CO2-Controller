@@ -5,9 +5,9 @@
 #include "TaskConsole.h"
 
 #include <sstream>
-#define UART_NO 0
-#define TX_PIN 0
-#define RX_PIN 1
+#define UART_NO 1
+#define TX_PIN 4
+#define RX_PIN 5
 #define UART_SPEED 115200
 
 TaskConsole::TaskConsole()
@@ -22,10 +22,11 @@ void TaskConsole::task_runner()
 	std::string line;
 	while (true) {
 		if(int count = uart_->read(buffer, 63, 30); count > 0) {
-			uart_->write(buffer, count);
+			//uart_->write(buffer, count);
 			buffer[count] = '\0';
-			line += reinterpret_cast<const char *>(buffer);
-			if(line.find_first_of("\n\r") != std::string::npos){
+			line.append(reinterpret_cast<const char*> (buffer),count);
+			if ((line.find_first_of("\n\r")) != std::string::npos){
+
 				uart_->send("\n");
 
 				std::istringstream input(line);
@@ -35,7 +36,7 @@ void TaskConsole::task_runner()
 					uint32_t i = 0;
 					input >> i;
 
-					std::string message = cmd + std::to_string(i) + "\r\n";
+					std::string message = cmd + " " + std::to_string(i) + "\r\n";
 					uart_->write(reinterpret_cast<const uint8_t*>(message.c_str()), message.length());
 				}
 				else if (cmd == "t") {
@@ -43,6 +44,5 @@ void TaskConsole::task_runner()
 				line.clear();
 			}
 		}
-		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }

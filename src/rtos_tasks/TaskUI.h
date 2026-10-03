@@ -15,7 +15,7 @@
 
 #define SW0 9
 
-enum class UIEvent {MENU, CO2_SETTING, SHOW_DATA};
+
 
 class TaskUI : public ParentTask
 {

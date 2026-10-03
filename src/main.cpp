@@ -14,6 +14,7 @@
 #include "TaskUI.h"
 #include "lib/modbus/ModbusRegister.h"
 #include "IPStack.h"
+#include "TaskCloud.h"
 #include "cloud/secrets.h"
 #include "cloud/ThingSpeak.h"
 #include "cloud/WifiManager.h"
@@ -64,14 +65,16 @@ int main() {
     static SensorTask sensor_task(client,storage,i2c_1);
     static  ControllerTask controller_task(actuator, storage);
 	static  TaskUI ui_task(i2c_0,i2c_1,storage);
-	static TaskConsole console_task;
+	static TaskCloud cloud_task(storage);
+	//static TaskConsole console_task;
 
 	static Encoder encoder(ROT_SW, ROT_A, ROT_B,ui_task.get_queue_handle());
 
     sensor_task.start();
     controller_task.start();
 	ui_task.start();
-	console_task.start();
+	//console_task.start();
+	cloud_task.start();
 
     vTaskStartScheduler();
 
