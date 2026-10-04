@@ -5,7 +5,7 @@
 #include "secrets.h"
 
 WifiManager::WifiManager(const char *ssid_in, const char *pw_in) : ssid(ssid_in), password(pw_in) {
-    ip_stack = std::make_unique<IPStack>(ssid, password);
+    ip_stack = std::make_unique<IPStack>();
 }
 
 bool WifiManager::is_connected() const

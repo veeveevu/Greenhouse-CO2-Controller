@@ -15,6 +15,7 @@ TaskCloud::TaskCloud(SystemStorage& storage, EventGroupHandle_t event_grp)
 void TaskCloud::task_runner() {
 	std::cout << "Cloud starts\n";
     wifi_manager = std::make_unique<WifiManager>(WIFI_ID, WIFI_PWD);
+	//wifi_manager->connect_new_wifi(WIFI_ID, WIFI_PWD);
 
     const uint8_t thingspeak_cert[] = THINGSPEAK_CERT;
     const size_t thingspeak_cert_len = sizeof(thingspeak_cert);
@@ -31,10 +32,12 @@ void TaskCloud::task_runner() {
 
     	if (uxBits & WIFI_RECONNECT_BIT)
     	{
-    		std::cout << "New WiFi connnecting\n";
+    		std::cout << "New WiFi connecting\n";
+    		xEventGroupSetBits(event_grp,CONNECTION_SESSION_IN_PROGRESS_BIT);
     		NetworkSetting network_setting = storage.get_network_settings();
     		wifi_manager ->connect_new_wifi(network_setting.ssid, network_setting.pwd);
     		storage.update_wifi_status(wifi_manager->is_connected());
+    		xEventGroupClearBits(event_grp, CONNECTION_SESSION_IN_PROGRESS_BIT);
     	}
         SensorReading data = storage.get_data();
         int new_setpoint = data.co2_set_point;

@@ -14,9 +14,21 @@ void MemoryManager::read_co2_setting(uint8_t *read_co2_dest)
 
 }
 
-void MemoryManager::read_network_setting(uint8_t *dest)
+void MemoryManager::read_network_setting(char* ssid, char* pwd)
 {
-	eeprom.read(dest,default_payload,network_setting_addr);
+	char buffer[default_payload];
+	eeprom.read(reinterpret_cast<uint8_t *>(buffer),default_payload,network_setting_addr);
+
+	int parse_count = sscanf(buffer, "SSID: %32s PASSWORD: %32s", ssid, pwd);
+
+	if (parse_count == 2)
+	{
+		printf("SSID: %s\n", ssid);
+		printf("PASSWORD: %s\n", pwd);
+	} else
+	{
+		printf("Parsing failed! EEPROM data format is invalid.\n");
+	}
 }
 
 void MemoryManager::save_new_co2_setting(int new_co2_setting)

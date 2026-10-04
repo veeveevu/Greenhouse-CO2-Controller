@@ -47,49 +47,66 @@ void TaskUI::task_runner()
 	storage.set_co2_point(co2_setting_display);
 	printf("Storage co2 set: %d\n", storage.get_data().co2_set_point);
 
+	eeprom->read_network_setting(ssid_input, pwd_input);
+	storage.update_network(ssid_input, pwd_input);
+	xEventGroupSetBits(event_grp, WIFI_RECONNECT_BIT);
+
 	while (true)
 	{
-		if (state_change || current_state == UIEvent::SHOW_DATA)
+		EventBits_t uxBits = xEventGroupWaitBits(event_grp, CONNECTION_SESSION_IN_PROGRESS_BIT,pdFALSE,pdFALSE,0);
+		if (uxBits & CONNECTION_SESSION_IN_PROGRESS_BIT)
 		{
-			switch (current_state)
-			{
-				case UIEvent::MENU:
-					oled->show_menu();
-					break;
-				case UIEvent::CO2_SETTING:
-					oled->change_co2_setting(input_buffer,co2_setting_display);
-					break;
-				case UIEvent::SHOW_DATA:
-				{
-					SensorReading data = storage.get_data();
-					if (data!=last_data)
-					{
-						oled->show_data(data.co2_level_ppm, data.temp_celsius, data.humidity_percent, data.pressure_pa, data.co2_set_point);
-						last_data = data;
-					}
-					break;
-				}
-				case UIEvent::NETWORK:
-				{
-					std::string status = storage.wifi_is_connected() ? "Connected" : "Not connected";
-					oled->show_network(storage.get_network_settings().ssid, status.c_str());
-					break;
-				}
-				case UIEvent::NEW_NETWORK:
-					oled->connect_new_network(current_network_input,ssid_input, pwd_input, input_buffer);
-					break;
-				case UIEvent::RESET:
-					oled->show_reset(input_buffer);
-					break;
-			}
-			state_change = false;
+			oled->connecting_animation(ssid_input);
+			oled->clear();
+			state_change = true;
 		}
-
-		handle_interaction();
+		else
+		{
+			handle_state();
+			handle_interaction();
+		}
 		vTaskDelay(pdMS_TO_TICKS(1));
 	}
 }
 
+void TaskUI::handle_state()
+{
+	if (state_change || current_state == UIEvent::SHOW_DATA)
+	{
+		switch (current_state)
+		{
+			case UIEvent::MENU:
+				oled->show_menu();
+				break;
+			case UIEvent::CO2_SETTING:
+				oled->change_co2_setting(input_buffer,co2_setting_display);
+				break;
+			case UIEvent::SHOW_DATA:
+			{
+				SensorReading data = storage.get_data();
+				if (data!=last_data)
+				{
+					oled->show_data(data.co2_level_ppm, data.temp_celsius, data.humidity_percent, data.pressure_pa, data.co2_set_point);
+					last_data = data;
+				}
+				break;
+			}
+			case UIEvent::NETWORK:
+			{
+				std::string status = storage.wifi_is_connected() ? "Connected" : "Not connected";
+				oled->show_network(storage.get_network_settings().ssid, status.c_str());
+				break;
+			}
+			case UIEvent::NEW_NETWORK:
+				oled->connect_new_network(current_network_input,ssid_input, pwd_input, input_buffer);
+				break;
+			case UIEvent::RESET:
+				oled->show_reset(input_buffer);
+				break;
+		}
+		state_change = false;
+	}
+}
 
 
 void TaskUI::handle_interaction()
@@ -353,11 +370,7 @@ void TaskUI::new_network_interaction()
 
 				oled->connecting_animation(ssid_input);
 
-				//Save to EEPROM
-				eeprom->save_network_setting(ssid_input, pwd_input);
-
 				//Update SSID and PWD - then set bit in event group
-				std::cout << "Set bit reconnect Wifi\n";
 				storage.update_network(ssid_input, pwd_input);
 				storage.update_wifi_status(false);
 				xEventGroupSetBits(event_grp,WIFI_RECONNECT_BIT);
@@ -366,6 +379,9 @@ void TaskUI::new_network_interaction()
 				{
 					oled->connect_successfully(ssid_input);
 					vTaskDelay(pdMS_TO_TICKS(1000));
+
+					//Save to EEPROM
+					eeprom->save_network_setting(ssid_input, pwd_input);
 				}
 				else
 				{

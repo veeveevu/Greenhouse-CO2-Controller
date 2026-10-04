@@ -39,6 +39,8 @@ class TaskUI : public ParentTask
 
 		void task_runner() override;
 
+		void handle_state();
+
 
 		//Handle interaction
 		bool handle_encoder(int encoder);

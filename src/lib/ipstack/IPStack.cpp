@@ -23,27 +23,18 @@ IPStack::IPStack(const char *ssid, const char *pw) : tcp_pcb{nullptr}, dropped{0
     cyw43_arch_enable_sta_mode();
 
 	connect_to_wifi(ssid, pw);
-	/*
-	DEBUG_printf("Connecting to Wi-Fi...\n");
-	const int max_retries = 3;
-	int attempt = 0;
-	while (attempt < max_retries && !connected)
-	{
-		attempt++;
-		DEBUG_printf("WiFi connection attempt number %d\n",attempt);
-		if (cyw43_arch_wifi_connect_timeout_ms(ssid, pw, CYW43_AUTH_WPA2_AES_PSK, 10000)) {
-			DEBUG_printf("Failed to connect. Reconnecting...\n");
-			vTaskDelay(pdMS_TO_TICKS(1000));
-		} else {
-			DEBUG_printf("Connected.\n");
-			connected = true;
-		}
-	}*/
+}
+
+IPStack::IPStack() : tcp_pcb{nullptr}, dropped{0}, count{0}, wr{0}, rd{0}, connected{false} {
+	if (cyw43_arch_init()) {
+		DEBUG_printf("failed to initialise\n");
+		return;
+	}
+	cyw43_arch_enable_sta_mode();
 }
 
 void IPStack::connect_to_wifi(const char* ssid, const char* pw)
 {
-	//disconnect();
 
 	connected = false;
 	cyw43_wifi_leave(&cyw43_state, CYW43_ITF_STA);

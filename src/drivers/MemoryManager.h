@@ -14,7 +14,7 @@ class MemoryManager
 		void save_new_co2_setting(int new_co2_setting);
 		void save_network_setting( char* ssid, char* pwd);
 		void read_co2_setting(uint8_t *read_co2_dest);
-		void read_network_setting(uint8_t *dest);
+		void read_network_setting(char* ssid, char* pwd);
 
 	private:
 		EEPROM eeprom;
