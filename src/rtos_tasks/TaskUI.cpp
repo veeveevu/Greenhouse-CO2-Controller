@@ -47,9 +47,12 @@ void TaskUI::task_runner()
 	storage.set_co2_point(co2_setting_display);
 	printf("Storage co2 set: %d\n", storage.get_data().co2_set_point);
 
-	eeprom->read_network_setting(ssid_input, pwd_input);
-	storage.update_network(ssid_input, pwd_input);
-	xEventGroupSetBits(event_grp, WIFI_RECONNECT_BIT);
+	int network_setting_count = eeprom->read_network_setting(ssid_input, pwd_input);
+	if (network_setting_count == 2)
+	{
+		storage.update_network(ssid_input, pwd_input);
+		xEventGroupSetBits(event_grp, WIFI_RECONNECT_BIT);
+	}
 
 	while (true)
 	{
@@ -102,6 +105,8 @@ void TaskUI::handle_state()
 				break;
 			case UIEvent::RESET:
 				oled->show_reset(input_buffer);
+				break;
+			default:
 				break;
 		}
 		state_change = false;
@@ -412,6 +417,7 @@ void TaskUI::ui_reset()
 	input_buffer[0] = '\0';
 	co2_setting_display = 1500;
 	eeprom->save_new_co2_setting(1500);
+	eeprom->reset_network_setting();
 	transition_to(UIEvent::MENU);
 }
 

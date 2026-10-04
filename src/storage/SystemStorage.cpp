@@ -68,6 +68,10 @@ void SystemStorage::factory_reset()
 		data.fan_pulse_counter = 0;
 		data.is_fan_running = 0;
 		data_available = false;
+
+		network_setting.ssid[0] = '\0';
+		network_setting.pwd[0] = '\0';
+		wifi_connected = false;
 		xSemaphoreGive(mutex);
 	}
 }

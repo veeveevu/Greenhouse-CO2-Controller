@@ -23,7 +23,7 @@ struct menuItem
 
 class OLEDDisplay {
 	public:
-		OLEDDisplay(std::shared_ptr<PicoI2C> i2c_1);
+		OLEDDisplay(const std::shared_ptr<PicoI2C> &i2c_1);
 		OLEDDisplay(const OLEDDisplay &) = delete;
 
 		void clear();
@@ -50,7 +50,7 @@ class OLEDDisplay {
 
 		void clear_co2_display();
 
-		void show_data(float co2_level, float temperature, float humidity, float pressure, float co2_setting);
+		void show_data(float co2_level, float temperature, float humidity, float pressure, int co2_setting);
 
 		void show_network(const char* ssid, const char* status);
 
