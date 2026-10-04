@@ -12,14 +12,10 @@ void OLEDDisplay::clear() {
 	display.fill(0);
 	display.show();
 }
-void OLEDDisplay::show_options(int option_length, std::vector<std::string> options)
+void OLEDDisplay::show_options(int option_length, std::vector<std::string> options, int &x, int &y)
 {
-	int x = 0;
-	int y = 1;
 
-	int num_visible_line = 5;
-	int i = 0;
-	for ( ; i < option_length; i++)
+	for ( int i = 0; i < option_length; i++)
 	{
 		//Highlight the option to be selected
 		bool selected = ((current_select -1) == i);
@@ -41,46 +37,53 @@ void OLEDDisplay::show_options(int option_length, std::vector<std::string> optio
 
 void OLEDDisplay::show_menu()
 {
-	show_options(main_menu.menu_length,main_menu.menu_options);
+	int x = 0;
+	int y = 1;
+	show_options(main_menu.menu_length,main_menu.menu_options,x,y);
 }
-void OLEDDisplay::show_network_setting()
-{
-	show_options(network_menu.menu_length, network_menu.menu_options);
-}
-
-void OLEDDisplay::change_co2_setting(int co2_setting)
+void OLEDDisplay::show_network_connect_options()
 {
 	int x = 0;
-	std::string co2_str = std::to_string(co2_setting);
+	int y = 45;
+	show_options(network_menu.menu_length, network_menu.menu_options, x, y);
+}
 
-	//Format the spacing of co2 setting display
-	if (co2_setting < 99)
-	{
-		x = 62;
-	}
-	else if (co2_setting < 999)
-	{
-		x = 55;
-	}
-	else
-	{
-		x = 50;
-	}
-	display.text(co2_str.c_str(),x, 14,1);
+void OLEDDisplay::change_co2_setting(const char *co2_input, int current_set_point)
+{
+	//Input space
+	std::string current_co2_point = "Current: " + std::to_string(current_set_point);
+	display.text(current_co2_point.c_str(),0,0,1);
 
-	//show the symbol
-	display.text("+", 90, 4, 1);
-	display.text(">", 90, 14, 1);
-	display.text("-", 30, 4, 1);
-	display.text("<", 30, 14, 1);
+	display.text("Enter new: ", 0, 10,1);
+	display.rect(0,20,125,15,1,0);
 
-	//Press encoder to save
-	display.text("Save: press ", 0, 30,1);
-	display.text("encoder", 49, 40,1);
+	//Show input
+	display.rect(1,21,120,13,0,1);
+	display.text(co2_input, 5, 23,1);
+
+	//Instructions
 	display.text("Exit: press SW0", 0, 50,1);
 	display.show();
 }
 
+
+
+void OLEDDisplay::confirm_co2_setting(int new_co2_setting)
+{
+	clear();
+	display.text("Saved successfully!",0,12,1);
+	display.text("New set point: ", 0, 22, 1);
+	std::string new_co2 = std::to_string(new_co2_setting);
+	display.text(new_co2.c_str(), 0, 32, 1);
+	display.show();
+}
+
+void OLEDDisplay::no_new_setting()
+{
+	clear();
+	display.text("No new setting. Returning...",0,30,1);
+	display.show();
+}
 
 void OLEDDisplay::show_data(float co2_level, float temperature, float humidity, float pressure, float co2_setting)
 {
@@ -90,20 +93,102 @@ void OLEDDisplay::show_data(float co2_level, float temperature, float humidity, 
 	display.text(buffer, 0, 0, 1);
 
 	snprintf(buffer, sizeof(buffer), "Temp: %.1f C", temperature);
-	display.text(buffer, 0, 12, 1);
+	display.text(buffer, 0, 10, 1);
 
 	snprintf(buffer, sizeof(buffer), "Hum: %.1f ", humidity);
-	display.text(buffer, 0, 24, 1);
+	display.text(buffer, 0, 20, 1);
 
 	snprintf(buffer, sizeof(buffer), "Press: %.1f Pa", pressure);
-	display.text(buffer, 0, 36, 1);
+	display.text(buffer, 0, 30, 1);
 
 	snprintf(buffer, sizeof(buffer), "CO2 set: %.1f ", co2_setting);
-	display.text(buffer, 0, 48, 1);
+	display.text(buffer, 0, 40, 1);
 
+	display.text("Exit: press SW0", 0, 55,1);
 	display.show();
 }
 
+void OLEDDisplay::show_network(const char* ssid, const char* status)
+{
+	char ssid_show[20];
+	char status_show[20];
+
+	display.rect(0,0,124,25,1,0);
+	snprintf(ssid_show, 20, "<%s>", ssid);
+	snprintf(status_show, 20, "%s", status);
+
+	display.text(ssid_show,0,5,1);
+	display.text(status_show, 0, 15, 1);
+
+	display.text("Change network: ", 0, 30);
+	show_network_connect_options();
+}
+
+void OLEDDisplay::connect_new_network(NetworkParam current_param, const char* ssid_input, const char* pwd_input, const char* input_buffer)
+{
+	display.text("SSID", 0, 0,1);
+	display.text("Password:", 0, 30,1);
+	int input_y;
+	if (current_param != NetworkParam::DONE)
+	{
+		if (current_param == NetworkParam::SSID)
+		{
+			input_y = 11;
+			display.rect(0, 51, 60, 13, 1, 0);
+			display.text("Connect", 1, 52, 1);
+		}
+		else if (current_param == NetworkParam::PASSWORD)
+		{
+			input_y = 40;
+
+			display.rect(0,11,125,15,0,true);
+			display.text(ssid_input, 0, 10, 1);
+
+			//Connect button
+			display.rect(0, 51, 60, 13, 1, 1);
+			display.text("Connect", 1, 52, 0);
+
+		}
+		display.rect(0,input_y, 125,10,1,false);
+		display.rect(1, input_y+ 1, 120,8,0,1);
+		display.text(input_buffer, 1, input_y, 1);
+
+	}
+	else
+	{
+		display.text(ssid_input, 0, 10, 1);
+		display.text(pwd_input, 0, 40, 1);
+	}
+	display.show();
+}
+
+void OLEDDisplay::connecting_animation(const char* ssid)
+{
+	clear();
+	display.text(ssid, 0, 15,1);
+	display.text("Connecting ", 0,25,1);
+	for (int i = 1; i <= 3; i++ )
+	{
+		display.rect(80 + i*2,30,2,2,1,1);
+		display.show();
+		vTaskDelay(pdMS_TO_TICKS(500));
+	}
+}
+
+void OLEDDisplay::connect_successfully(const char* ssid)
+{
+	clear();
+	display.text(ssid, 0, 15,1);
+	display.text("Connected", 0, 25, 1);
+	display.show();
+	vTaskDelay(pdMS_TO_TICKS(1000));
+}
+
+void OLEDDisplay::connect_failed()
+{
+	display.text("Failed to connect", 0, 20, 1);
+	display.show();
+}
 
 void OLEDDisplay::increment_menu_select(UIEvent current_state)
 {
@@ -132,6 +217,11 @@ void OLEDDisplay::decrement_menu_select()
 	}
 }
 
+void OLEDDisplay::reset_menu_select()
+{
+	current_select = 1;
+}
+
 
 void OLEDDisplay::clear_co2_display()
 {
@@ -144,4 +234,22 @@ int OLEDDisplay::get_current_select() const
 	return current_select;
 }
 
+
+void OLEDDisplay::show_reset(const char *input)
+{
+	display.text("Type \"reset\" to confirm", 0,0,1);
+	display.rect(0,20,125,15,1,0);
+	display.rect(1,21,120,13,0,1);
+	display.text(input, 5, 23,1);
+	display.text("Exit: press SW0", 0, 50,1);
+	display.show();
+}
+
+void OLEDDisplay::wrong_command()
+{
+	clear();
+	display.text("Wrong command",0,10,1);
+	display.text("Return to main menu", 0,20,1);
+	display.show();
+}
 

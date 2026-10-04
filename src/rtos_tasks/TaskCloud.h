@@ -6,6 +6,7 @@
 
 #include "ActuatorController.h"
 #include "data_structs.h"
+#include "event_groups.h"
 #include "ParentTask.h"
 #include "storage/SystemStorage.h"
 #include "cloud/secrets.h"
@@ -15,7 +16,7 @@
 
 class TaskCloud : public ParentTask {
 public:
-    TaskCloud(SystemStorage &storage);
+    TaskCloud(SystemStorage &storage, EventGroupHandle_t event_grp);
 private:
     void task_runner() override;
 
@@ -24,6 +25,7 @@ private:
     SystemStorage &storage;
     //std::shared_ptr<ThingSpeak> thingspeak;
 	std::unique_ptr<WifiManager> wifi_manager;
+	EventGroupHandle_t event_grp;
 };
 
 #endif //GREENHOUSE_TASKCLOUD_H

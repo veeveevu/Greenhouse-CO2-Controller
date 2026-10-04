@@ -26,6 +26,15 @@ void MemoryManager::save_new_co2_setting(int new_co2_setting)
 
 	eeprom.write(save_data,default_payload,co2_setting_addr);
 }
+void MemoryManager::save_network_setting( char *ssid, char* pwd)
+{
+	char buffer[64];
+	snprintf(buffer, 64, "SSID: %s PASSWORD: %s", ssid, pwd);
+	uint8_t* save_data = reinterpret_cast<uint8_t*>(buffer);
+
+	eeprom.write(save_data, default_payload, network_setting_addr);
+}
+
 
 
 

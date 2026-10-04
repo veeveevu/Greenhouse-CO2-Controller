@@ -11,11 +11,13 @@ SensorTask::SensorTask(const std::shared_ptr<ModbusClient>& client, SystemStorag
 			handler(client,pressure_sensor_), storage(storage) {}
 
 void SensorTask::task_runner() {
-while (true) {
-    handler.sensors_read();
-    SensorReading data = handler.return_sensor_data();
-	storage.update_data(data);
-    //xQueueOverwrite(sensor_queue, &data);
-    vTaskDelay(pdMS_TO_TICKS(READING_PERIOD_MS));
+	while (true) {
+	    handler.sensors_read();
+
+	    SensorReading data = handler.return_sensor_data();
+		storage.update_data(data);
+	    vTaskDelay(pdMS_TO_TICKS(READING_PERIOD_MS));
+	}
 }
-}
+
+

@@ -13,6 +13,9 @@ public:
 	void build_thingspeak_request(char *method, char* path,  char* buffer, size_t buffer_size, const char* body = "");
 	void send_data(SensorReading data);
 		bool is_connected() const;
+
+    void connect_new_wifi(const char *ssid, const char *pw);
+
 private:
     const char *                   ssid;
     const char *                   password;

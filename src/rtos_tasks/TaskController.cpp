@@ -26,6 +26,7 @@ void ControllerTask::handle_co2(const SensorReading &data) {
         safety_fan_mode = true;
         controller->valve_close();
         controller->fan_set_power(100.0);
+    	storage.update_fan_speed(100);
         valve_state = ValveState::CLOSED;
         return;
     }
@@ -33,11 +34,13 @@ void ControllerTask::handle_co2(const SensorReading &data) {
     if (safety_fan_mode) {
         if (data.co2_level_ppm <= CO2_SAFETY_LIMIT) {
             controller->fan_turn_off();
+        	storage.update_fan_speed(0);
             safety_fan_mode = false;
         }
     	else
     	{
     		controller->fan_set_power(100.0);
+    		storage.update_fan_speed(100);
     	}
         return;
     }
@@ -46,12 +49,14 @@ void ControllerTask::handle_co2(const SensorReading &data) {
 	if (data.co2_level_ppm < 2000 && data.co2_level_ppm > data.co2_set_point)
 	{
 		controller->fan_turn_off();
+		storage.update_fan_speed(0);
 	}
 
     //!! nhớ là change setpoint phải dưới upper limit là 1500
 	switch (valve_state) {
     case ValveState::CLOSED:
         if (data.co2_level_ppm < co2_setpoint) {
+        	printf("VALVE OPEN: co2 lelvel - %.1f\n", data.co2_level_ppm);
             controller->valve_open();
             valve_state = ValveState::OPEN;
             time_since_state_start = xTaskGetTickCount();
@@ -78,10 +83,12 @@ void ControllerTask::handle_co2(const SensorReading &data) {
 void ControllerTask::task_runner() {
 
 	while (true) {
-		SensorReading data = storage.get_data();
-		co2_setpoint = data.co2_set_point;
-		handle_co2(data);
-
+		if (storage.data_available_to_read())
+		{
+			SensorReading data = storage.get_data();
+			co2_setpoint = data.co2_set_point;
+			handle_co2(data);
+		}
 		vTaskDelay(pdMS_TO_TICKS(100));
 	}
 }

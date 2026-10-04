@@ -17,7 +17,6 @@
 class SensorTask : public ParentTask {
 public:
     SensorTask(const std::shared_ptr<ModbusClient>& client, SystemStorage& storage, std::shared_ptr<PicoI2C> i2c);
-
 private:
     void task_runner() override;
 

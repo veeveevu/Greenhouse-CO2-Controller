@@ -9,9 +9,6 @@
 #include "lwip/opt.h"
 #include "lwip/dns.h"
 
-#include "cloud/secrets.h"
-
-
 // To remove Pico example debugging functions during refactoring
 //#define DEBUG_printf(x, ...) {}
 #define DEBUG_printf printf
@@ -25,7 +22,9 @@ IPStack::IPStack(const char *ssid, const char *pw) : tcp_pcb{nullptr}, dropped{0
     }
     cyw43_arch_enable_sta_mode();
 
-    DEBUG_printf("Connecting to Wi-Fi...\n");
+	connect_to_wifi(ssid, pw);
+	/*
+	DEBUG_printf("Connecting to Wi-Fi...\n");
 	const int max_retries = 3;
 	int attempt = 0;
 	while (attempt < max_retries && !connected)
@@ -36,16 +35,31 @@ IPStack::IPStack(const char *ssid, const char *pw) : tcp_pcb{nullptr}, dropped{0
 			DEBUG_printf("Failed to connect. Reconnecting...\n");
 			vTaskDelay(pdMS_TO_TICKS(1000));
 		} else {
-			DEBUG_printf("Connected. Initialise DNS.\n");
+			DEBUG_printf("Connected.\n");
 			connected = true;
+		}
+	}*/
+}
 
-			//Configure DNS
-			dns_init();
-			ip_addr_t dns_server;
-			IP4_ADDR(&dns_server,8,8,8,8);
-			dns_setserver(0,&dns_server);
-			const ip_addr_t* verify_dns = dns_getserver(0);
-			DEBUG_printf("Configured DNS server: %s\n", ipaddr_ntoa(verify_dns));
+void IPStack::connect_to_wifi(const char* ssid, const char* pw)
+{
+	//disconnect();
+
+	connected = false;
+	cyw43_wifi_leave(&cyw43_state, CYW43_ITF_STA);
+	DEBUG_printf("Connecting to Wi-Fi...\n");
+	const int max_retries = 3;
+	int attempt = 0;
+	while (attempt < max_retries && !connected)
+	{
+		attempt++;
+		DEBUG_printf("WiFi connection attempt number %d\n",attempt);
+		if (cyw43_arch_wifi_connect_timeout_ms(ssid, pw, CYW43_AUTH_WPA2_AES_PSK, 10000)) {
+			DEBUG_printf("Failed to connect. Reconnecting...\n");
+			vTaskDelay(pdMS_TO_TICKS(1000));
+		} else {
+			DEBUG_printf("Connected.\n");
+			connected = true;
 		}
 	}
 }

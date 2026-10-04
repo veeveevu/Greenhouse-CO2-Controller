@@ -17,7 +17,10 @@
 class IPStack {
 public:
     IPStack(const char *ssid, const char *pw);
-    int connect(const char *hostname, int port);
+
+    void connect_to_wifi(const char *ssid, const char *pw);
+
+    int  connect(const char *hostname, int port);
 
     bool is_connected();
 

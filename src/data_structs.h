@@ -33,15 +33,10 @@ struct SensorReading {
 	}
 };
 
-//gui cai nay cho queue cua UI
-struct ActuatorState {
-    float fan_power_percent = 0;
-    bool is_valve_open = false;
-};
-
-//struct that controller read, UI set
-struct Co2Setting {
-    float co2_setpoint = 1500;
+struct NetworkSetting
+{
+	char ssid[20];
+	char pwd[20];
 };
 
 

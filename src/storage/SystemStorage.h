@@ -14,14 +14,26 @@ class SystemStorage
 		SystemStorage();
 		SensorReading get_data();
 		void update_data(SensorReading new_data);
-
 		void update_fan_speed(float new_fan_speed);
+		void update_network(const char* ssid_input, const char* pwd_input);
 
-		void set_co2_point(int new_co2_point);
+		NetworkSetting get_network_settings() const;
+
+		void update_wifi_status(bool connected);
+
+		bool wifi_is_connected() const;
+
+		void           set_co2_point(int new_co2_point);
+		void           factory_reset();
+
+		bool data_available_to_read() const;
 
 	private:
 		SensorReading data;
 		SemaphoreHandle_t mutex;
+		bool data_available = false;
+		NetworkSetting network_setting;
+		bool wifi_connected = false;
 };
 
 

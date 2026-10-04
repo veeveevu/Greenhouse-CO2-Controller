@@ -91,7 +91,7 @@ bool ThingSpeak::receive_setpoint(int &setpoint) {
 
     //ko có key mới
     if (key == nullptr) {
-        printf("[TS] No new TalkBack command\n");
+        //printf("[TS] No new TalkBack command\n");
         return false;
     }
 
