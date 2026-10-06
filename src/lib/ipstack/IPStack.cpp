@@ -46,8 +46,12 @@ void IPStack::connect_to_wifi(const char* ssid, const char* pw)
 		attempt++;
 		DEBUG_printf("WiFi connection attempt number %d\n",attempt);
 		if (cyw43_arch_wifi_connect_timeout_ms(ssid, pw, CYW43_AUTH_WPA2_AES_PSK, 10000)) {
-			DEBUG_printf("Failed to connect. Reconnecting...\n");
-			vTaskDelay(pdMS_TO_TICKS(1000));
+			DEBUG_printf("Failed to connect.\n");
+		    if (attempt < max_retries)
+		    {
+		        DEBUG_printf("Reconnecting...\n");
+		        vTaskDelay(pdMS_TO_TICKS(1000));
+		    }
 		} else {
 			DEBUG_printf("Connected.\n");
 			connected = true;
