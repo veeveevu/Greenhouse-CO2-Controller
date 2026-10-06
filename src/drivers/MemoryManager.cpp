@@ -19,7 +19,7 @@ int MemoryManager::read_network_setting(char *ssid, char *pwd)
 {
 	char buffer[default_payload];
 	eeprom.read(reinterpret_cast<uint8_t *>(buffer),default_payload,network_setting_addr);
-	std::cout << buffer;
+	//std::cout << buffer;
 
 	int parse_count = sscanf(buffer, "SSID: %32s PASSWORD: %32s\n", ssid, pwd);
 
