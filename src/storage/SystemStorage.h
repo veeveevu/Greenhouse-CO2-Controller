@@ -6,6 +6,7 @@
 #define GREENHOUSE_SYSTEMSTORAGE_H
 #include "data_structs.h"
 #include "semphr.h"
+#include "UIEvent.h"
 
 
 class SystemStorage
@@ -19,9 +20,9 @@ class SystemStorage
 
 		NetworkSetting get_network_settings() const;
 
-		void update_wifi_status(bool connected);
+		void update_wifi_status(WiFiStatus new_status);
+		WiFiStatus get_wifi_status();
 
-		bool wifi_is_connected() const;
 
 		void           set_co2_point(int new_co2_point);
 		void           factory_reset();
@@ -33,7 +34,7 @@ class SystemStorage
 		SemaphoreHandle_t mutex;
 		bool data_available = false;
 		NetworkSetting network_setting;
-		bool wifi_connected = false;
+		WiFiStatus wifi_status = WiFiStatus::IDLE;
 };
 
 

@@ -8,14 +8,14 @@
 
 #include "semphr.h"
 
-SystemStorage::SystemStorage()
+SystemStorage::SystemStorage() :network_setting(), data()
 {
 	mutex = xSemaphoreCreateMutex();
 }
 
 SensorReading SystemStorage::get_data()
 {
-	SensorReading data_copy;
+	SensorReading data_copy = {};
 	if (xSemaphoreTake(mutex,portMAX_DELAY) == pdTRUE)
 	{
 		data_copy = data;
@@ -66,12 +66,11 @@ void SystemStorage::factory_reset()
 		data.humidity_percent = 0;
 		data.pressure_pa = 0;
 		data.fan_pulse_counter = 0;
-		data.is_fan_running = 0;
+		data.is_fan_running = false;
 		data_available = false;
 
 		network_setting.ssid[0] = '\0';
 		network_setting.pwd[0] = '\0';
-		wifi_connected = false;
 		xSemaphoreGive(mutex);
 	}
 }
@@ -110,27 +109,25 @@ NetworkSetting SystemStorage::get_network_settings() const
 	return network;
 }
 
-void SystemStorage::update_wifi_status(bool connected)
+void SystemStorage::update_wifi_status(WiFiStatus new_status)
 {
 	if (xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE)
 	{
-		wifi_connected = connected;
+		wifi_status = new_status;
 		xSemaphoreGive(mutex);
 	}
 }
 
-bool SystemStorage::wifi_is_connected() const
+WiFiStatus SystemStorage:: get_wifi_status()
 {
-	bool connect = false;
+	WiFiStatus status;
 	if (xSemaphoreTake(mutex, portMAX_DELAY) == pdTRUE)
 	{
-		connect = wifi_connected;
+		status = wifi_status;
 		xSemaphoreGive(mutex);
 	}
-	return connect;
+	return status;
 }
-
-
 
 
 

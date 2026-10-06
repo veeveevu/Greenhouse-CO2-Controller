@@ -14,9 +14,13 @@
 
 TaskConsole::TaskConsole(EventGroupHandle_t event_grp, QueueHandle_t input_queue)
 	:	ParentTask("Console Task", 512, tskIDLE_PRIORITY + 1),
-		event_grp(event_grp),
-		input_queue(input_queue)
+		event_grp(event_grp), input_queue(input_queue)
 {
+
+}
+QueueHandle_t TaskConsole::get_queue_handle()
+{
+	return input_queue;
 }
 
 void TaskConsole::task_runner()
@@ -26,6 +30,7 @@ void TaskConsole::task_runner()
 	std::string line;
 
 	while (true) {
+
 		EventBits_t uxBit = xEventGroupWaitBits(event_grp,CONSOLE_ACTIVATE_BIT,pdFALSE, pdFALSE,portMAX_DELAY);
 		if ( (uxBit & CONSOLE_ACTIVATE_BIT) == CONSOLE_ACTIVATE_BIT)
 		{

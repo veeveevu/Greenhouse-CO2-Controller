@@ -34,6 +34,32 @@ namespace NetworkItem
 }
 void TaskUI::task_runner()
 {
+	boot();
+
+	while (true)
+	{
+		WiFiStatus current_wifi_state = storage.get_wifi_status();
+
+
+		//Main function of taskUI
+		if (current_wifi_state != WiFiStatus::IDLE && current_wifi_state != WiFiStatus::CONNECTED)
+		{
+			//Only run when attempt to connect Wifi
+			handle_wifi_animation(current_wifi_state);
+			update_network_credentials(current_wifi_state);
+		}
+		else
+		{
+			handle_state();
+			handle_interaction();
+		}
+
+		vTaskDelay(pdMS_TO_TICKS(1));
+	}
+}
+
+void TaskUI::boot()
+{
 	//Init
 	oled = std::make_unique<OLEDDisplay>(i2c_1);
 	eeprom = std::make_shared<MemoryManager>(i2c_0);
@@ -42,36 +68,68 @@ void TaskUI::task_runner()
 
 
 	//Read from EEPROM and save
+	eeprom->save_new_co2_setting(1500);
 	eeprom->read_co2_setting(reinterpret_cast<uint8_t *>(&co2_setting_display));
 	printf("EEPROM read, co2 set: %d\n",co2_setting_display);
 	storage.set_co2_point(co2_setting_display);
 	printf("Storage co2 set: %d\n", storage.get_data().co2_set_point);
 
+	//Check old network
 	int network_setting_count = eeprom->read_network_setting(ssid_input, pwd_input);
-	if (network_setting_count == 2)
+	if (network_setting_count == 2) //If the saved wifi is valid
 	{
 		storage.update_network(ssid_input, pwd_input);
-		xEventGroupSetBits(event_grp, WIFI_RECONNECT_BIT);
-	}
-
-	while (true)
-	{
-		EventBits_t uxBits = xEventGroupWaitBits(event_grp, CONNECTION_SESSION_IN_PROGRESS_BIT,pdFALSE,pdFALSE,0);
-		if (uxBits & CONNECTION_SESSION_IN_PROGRESS_BIT)
-		{
-			oled->connecting_animation(ssid_input);
-			oled->clear();
-			state_change = true;
-		}
-		else
-		{
-			handle_state();
-			handle_interaction();
-		}
-		vTaskDelay(pdMS_TO_TICKS(1));
+		xEventGroupSetBits(event_grp,WIFI_RECONNECT_BIT);
 	}
 }
 
+void TaskUI::update_network_credentials(WiFiStatus current_wifi_state)
+{
+	switch (current_wifi_state)
+	{
+		case WiFiStatus::CONNECTING:
+			//New attempt to connect to wifi
+			strcpy(ssid_input,storage.get_network_settings().ssid);
+			strcpy(pwd_input, storage.get_network_settings().pwd);
+			break;
+		case WiFiStatus::CONNECT_SUCCESS:
+			eeprom->save_network_setting(ssid_input,pwd_input);
+			break;
+		case WiFiStatus::CONNECT_FAIL:
+			ssid_input[0] = '\0';
+			pwd_input[0] = '\0';
+			break;
+		case WiFiStatus::IDLE:
+		case WiFiStatus::CONNECTED:
+			break;
+	}
+}
+
+void TaskUI::handle_wifi_animation(WiFiStatus current_wifi_state)
+{
+	switch (current_wifi_state)
+	{
+		case WiFiStatus::CONNECTING:
+			oled->connecting_animation(ssid_input);
+			oled->clear();
+			state_change = true;
+			break;
+		case WiFiStatus::CONNECT_SUCCESS:
+			oled->connect_successfully(ssid_input);
+			oled->clear();
+			storage.update_wifi_status(WiFiStatus::CONNECTED);
+			break;
+		case WiFiStatus::CONNECT_FAIL:
+			oled->connect_failed();
+			oled->clear();
+			storage.update_wifi_status(WiFiStatus::IDLE);
+			break;
+		case WiFiStatus::CONNECTED:
+			break;
+		case WiFiStatus::IDLE:
+			break;
+	}
+}
 void TaskUI::handle_state()
 {
 	if (state_change || current_state == UIEvent::SHOW_DATA)
@@ -96,7 +154,7 @@ void TaskUI::handle_state()
 			}
 			case UIEvent::NETWORK:
 			{
-				std::string status = storage.wifi_is_connected() ? "Connected" : "Not connected";
+				std::string status = storage.get_wifi_status() == WiFiStatus::CONNECTED ? "Connected" : "Not connected";
 				oled->show_network(storage.get_network_settings().ssid, status.c_str());
 				break;
 			}
@@ -161,7 +219,9 @@ void TaskUI::menu_interaction()
 	if (xQueueReceive(ui_queue, &encoder_receive,pdMS_TO_TICKS(10)) == pdPASS)
 	{
 		if (bool encoder_pressed = handle_encoder(encoder_receive))
-		transition_to(current_state);
+		{
+			transition_to(current_state);
+		}
 	}
 	else if (button->is_pressed())
 	{
@@ -288,6 +348,7 @@ bool TaskUI::process_text_input(char ch, bool allow_alpha)
 	{
 		return true;
 	}
+
 	if (ch == '\r')
 	{
 		return false;
@@ -373,26 +434,11 @@ void TaskUI::new_network_interaction()
 				current_network_input = NetworkParam::DONE;
 				state_change = true;
 
-				oled->connecting_animation(ssid_input);
-
 				//Update SSID and PWD - then set bit in event group
 				storage.update_network(ssid_input, pwd_input);
-				storage.update_wifi_status(false);
+				storage.update_wifi_status(WiFiStatus::CONNECTING);
 				xEventGroupSetBits(event_grp,WIFI_RECONNECT_BIT);
 
-				if (storage.wifi_is_connected())
-				{
-					oled->connect_successfully(ssid_input);
-					vTaskDelay(pdMS_TO_TICKS(1000));
-
-					//Save to EEPROM
-					eeprom->save_network_setting(ssid_input, pwd_input);
-				}
-				else
-				{
-					oled->connect_failed();
-					vTaskDelay(pdMS_TO_TICKS(1000));
-				}
 				exit_text_entry(UIEvent::MENU);
 				current_network_input = NetworkParam::SSID;
 			}

@@ -65,9 +65,10 @@ int main() {
 
     static SensorTask sensor_task(client,storage,i2c_1);
     static  ControllerTask controller_task(actuator, storage);
-	static  TaskUI ui_task(i2c_0,i2c_1,storage, task_event_grp);
 	static TaskCloud cloud_task(storage, task_event_grp);
+	static  TaskUI ui_task(i2c_0,i2c_1,storage, task_event_grp, cloud_task.getTaskHandle());
 	static TaskConsole console_task(task_event_grp, ui_task.get_input_queue_handle());
+
 
 	static Encoder encoder(ROT_SW, ROT_A, ROT_B,ui_task.get_ui_queue_handle());
 

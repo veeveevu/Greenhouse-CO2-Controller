@@ -21,23 +21,29 @@
 class TaskUI : public ParentTask
 {
 	public:
-		TaskUI (const std::shared_ptr<PicoI2C> &i2c_0, const std::shared_ptr<PicoI2C> &i2c_1, SystemStorage &storage, EventGroupHandle_t event_grp)
-			: ParentTask("UI Task", 2048,tskIDLE_PRIORITY + 2),
+		TaskUI (const std::shared_ptr<PicoI2C> &i2c_0, const std::shared_ptr<PicoI2C> &i2c_1, SystemStorage &storage, EventGroupHandle_t event_group,  TaskHandle_t cloud)
+			: ParentTask("UI Task", 2048,tskIDLE_PRIORITY + 4),
 			  i2c_0(i2c_0),
 			  i2c_1(i2c_1),
 			  btn_sw(SW0),
 			  storage(storage),
-			event_grp(event_grp)
-
+		event_grp(event_group),
+		tsk_cloud_handle(cloud)
 		{
 			ui_queue = xQueueCreate(20, sizeof(int));
 			configASSERT(ui_queue != NULL);
 
-			input_queue = xQueueCreate(20, sizeof(char));
-			configASSERT(input_queue != NULL);
+			input_queue = xQueueCreate(20, sizeof(int));
+			configASSERT(ui_queue != NULL);
 		};
 
 		void task_runner() override;
+
+		void boot();
+
+		void update_network_credentials(WiFiStatus current_state);
+
+		void handle_wifi_animation(WiFiStatus current_state);
 
 		void handle_state();
 
@@ -69,7 +75,6 @@ class TaskUI : public ParentTask
 	private:
 		QueueHandle_t ui_queue;
 		QueueHandle_t input_queue;
-		EventGroupHandle_t event_grp;
 
 		std::unique_ptr<OLEDDisplay> oled;
 		std::unique_ptr<Button> button;
@@ -81,18 +86,21 @@ class TaskUI : public ParentTask
 		std::shared_ptr<PicoI2C> i2c_1;
 		int btn_sw;
 
+		EventGroupHandle_t event_grp;
 		bool state_change = true;
 		bool clear_oled = false;
 		UIEvent current_state = UIEvent::MENU;
 		int co2_setting_display = 1500;
 
 		//Network
+		TaskHandle_t tsk_cloud_handle;
 		NetworkParam current_network_input = NetworkParam::SSID;
 		char ssid_input[20];
 		char pwd_input[20];
 
 
 		//Input
+		TaskHandle_t tsk_console_handle;
 		char input_buffer[20];
 		int input_count = 0;
 };

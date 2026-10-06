@@ -18,7 +18,10 @@ class TaskConsole : public ParentTask
 {
 	public:
 		TaskConsole(EventGroupHandle_t event_grp, QueueHandle_t input_queue);
-		void task_runner() override;
+
+		QueueHandle_t get_queue_handle();
+
+		void          task_runner() override;
 	private:
 		std::shared_ptr<PicoOsUart> uart_;
 		EventGroupHandle_t event_grp;

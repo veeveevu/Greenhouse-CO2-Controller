@@ -16,7 +16,7 @@ class EEPROM
 		explicit EEPROM(std::shared_ptr<PicoI2C> i2c_0) : i2c(i2c_0){};
 		EEPROM(const EEPROM &) = delete;
 		int read( uint8_t *dest, int payload_size, int rd_mem_addr) ;
-		int write(const uint8_t *src, int payload_size, int wr_mem_addr) ;
+		int      write(const uint8_t *src, int payload_size, int wr_mem_addr) ;
 
 
 	private:
