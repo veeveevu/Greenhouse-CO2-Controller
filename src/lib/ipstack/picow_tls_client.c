@@ -59,7 +59,7 @@ void tls_test(void) {
 #endif
     char ssid[] = WIFI_SSID;
     char pwd[] = WIFI_PASSWORD;
-    printf("SSID: %s\nPWD: %s\n", ssid, pwd);//WIFI_SSID, WIFI_PASSWORD);
+    //printf("SSID: %s\nPWD: %s\n", ssid, pwd);//WIFI_SSID, WIFI_PASSWORD);
     if (cyw43_arch_init()) {
         printf("failed to initialise\n");
         return;

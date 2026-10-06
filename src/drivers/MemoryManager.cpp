@@ -21,7 +21,7 @@ int MemoryManager::read_network_setting(char *ssid, char *pwd)
 	eeprom.read(reinterpret_cast<uint8_t *>(buffer),default_payload,network_setting_addr);
 	std::cout << buffer;
 
-	int parse_count = sscanf(buffer, "SSID: %32s PASSWORD: %32s", ssid, pwd);
+	int parse_count = sscanf(buffer, "SSID: %32s PASSWORD: %32s\n", ssid, pwd);
 
 	if (parse_count == 2)
 	{
@@ -50,7 +50,7 @@ void MemoryManager::reset_network_setting()
 void MemoryManager::save_network_setting( char *ssid, char* pwd)
 {
 	char buffer[64];
-	snprintf(buffer, 64, "SSID: %s PASSWORD: %s", "OK", "OK");
+	snprintf(buffer, 64, "SSID: %s PASSWORD: %s", ssid, pwd);
 	uint8_t* save_data = reinterpret_cast<uint8_t*>(buffer);
 
 	eeprom.write(save_data, default_payload, network_setting_addr);

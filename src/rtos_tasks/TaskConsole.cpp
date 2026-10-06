@@ -35,8 +35,18 @@ void TaskConsole::task_runner()
 		if ( (uxBit & CONSOLE_ACTIVATE_BIT) == CONSOLE_ACTIVATE_BIT)
 		{
 			if(int count = uart_->read(reinterpret_cast<uint8_t *> (&rx_char), 1, 30); count > 0) {
+				if (rx_char != '\n' && rx_char != '\r' && rx_char != '\b' && rx_char != 0x7F) {
+					uart_->write(reinterpret_cast<const uint8_t*>(&rx_char), 1);
+				}
+				else if (rx_char == '\b' || rx_char == 0x7F) {
+					const uint8_t erase_seq[] = {'\b', ' ', '\b'};
+					uart_->write(erase_seq, sizeof(erase_seq));
+				}
+				else if (rx_char == '\r' || rx_char == '\n') {
+					const uint8_t newline_seq[] = {'\r', '\n'};
+					uart_->write(newline_seq, sizeof(newline_seq));
+				}
 				xQueueSend(input_queue, &rx_char,0);
-				//uart_->write(buffer, count);
 			}
 		}
 		vTaskDelay(pdMS_TO_TICKS(1));

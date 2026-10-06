@@ -38,9 +38,17 @@ void TaskUI::task_runner()
 
 	while (true)
 	{
+		EventBits_t bit = xEventGroupWaitBits(event_grp,NEW_CO2_TALKBACK_BIT,pdTRUE,pdFALSE,0);
+		if (bit & NEW_CO2_TALKBACK_BIT)
+		{
+			oled->confirm_co2_setting(storage.get_data().co2_set_point);
+			vTaskDelay(pdMS_TO_TICKS(1000));
+			state_change= true;
+			current_state = UIEvent::MENU;
+			oled->clear();
+		}
+
 		WiFiStatus current_wifi_state = storage.get_wifi_status();
-
-
 		//Main function of taskUI
 		if (current_wifi_state != WiFiStatus::IDLE && current_wifi_state != WiFiStatus::CONNECTED)
 		{
@@ -62,13 +70,11 @@ void TaskUI::boot()
 {
 	//Init
 	oled = std::make_unique<OLEDDisplay>(i2c_1);
-	eeprom = std::make_shared<MemoryManager>(i2c_0);
 	button = std::make_unique<Button>(btn_sw);
 	input_buffer[0] = '\0';
 
 
 	//Read from EEPROM and save
-	eeprom->save_new_co2_setting(1500);
 	eeprom->read_co2_setting(reinterpret_cast<uint8_t *>(&co2_setting_display));
 	printf("EEPROM read, co2 set: %d\n",co2_setting_display);
 	storage.set_co2_point(co2_setting_display);
@@ -118,11 +124,13 @@ void TaskUI::handle_wifi_animation(WiFiStatus current_wifi_state)
 			oled->connect_successfully(ssid_input);
 			oled->clear();
 			storage.update_wifi_status(WiFiStatus::CONNECTED);
+			oled->reset_menu_select();
 			break;
 		case WiFiStatus::CONNECT_FAIL:
 			oled->connect_failed();
 			oled->clear();
 			storage.update_wifi_status(WiFiStatus::IDLE);
+			oled->reset_menu_select();
 			break;
 		case WiFiStatus::CONNECTED:
 			break;
@@ -140,6 +148,7 @@ void TaskUI::handle_state()
 				oled->show_menu();
 				break;
 			case UIEvent::CO2_SETTING:
+				co2_setting_display = storage.get_data().co2_set_point;
 				oled->change_co2_setting(input_buffer,co2_setting_display);
 				break;
 			case UIEvent::SHOW_DATA:
@@ -308,6 +317,7 @@ void TaskUI::co2_setting_interaction()
 				{
 					co2_setting_display = value;
 					eeprom->save_new_co2_setting(value);
+					storage.set_co2_point(value);
 					oled->confirm_co2_setting(value);
 					vTaskDelay(pdMS_TO_TICKS(1000));
 				}
@@ -344,6 +354,10 @@ void TaskUI::exit_text_entry(UIEvent next_state)
 
 bool TaskUI::process_text_input(char ch, bool allow_alpha)
 {
+	if (!allow_alpha && !std::isdigit(ch) && ch != '\b' && ch != 127 && ch != '\r' && ch != '\n')
+	{
+		std::cout << "Invalid character: " << ch <<'\n';
+	}
 	if (ch == '\n')
 	{
 		return true;

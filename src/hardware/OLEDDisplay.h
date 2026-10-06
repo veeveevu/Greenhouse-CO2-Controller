@@ -83,8 +83,8 @@ class OLEDDisplay {
 
 		menuItem network_menu{
 		"Network menu",
-		{"1. New network", "2. Known network"},
-		2};
+		{"New network"},
+		1};
 
 
 };

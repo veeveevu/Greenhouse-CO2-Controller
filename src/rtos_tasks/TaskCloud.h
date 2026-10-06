@@ -14,9 +14,11 @@
 #include "cloud/WifiManager.h"
 
 
+class MemoryManager;
+
 class TaskCloud : public ParentTask {
 public:
-    TaskCloud(SystemStorage &storage, EventGroupHandle_t event_grp);
+    TaskCloud(std::shared_ptr<MemoryManager> eeprom,SystemStorage &storage, EventGroupHandle_t event_grp);
 private:
     void task_runner() override;
     void connect_wifi(const char *ssid, const char *pw);
@@ -26,6 +28,8 @@ private:
     //std::shared_ptr<ThingSpeak> thingspeak;
 	std::unique_ptr<WifiManager> wifi_manager;
 	EventGroupHandle_t event_grp;
+		std::shared_ptr<MemoryManager> eeprom;
+
 };
 
 #endif //GREENHOUSE_TASKCLOUD_H

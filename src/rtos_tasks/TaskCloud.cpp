@@ -2,18 +2,18 @@
 
 #include <iostream>
 
+#include "MemoryManager.h"
 #include "UIEvent.h"
 #include "cloud/WifiManager.h"
 #include "cloud/secrets.h"
 
-TaskCloud::TaskCloud(SystemStorage& storage, EventGroupHandle_t event_grp)
+TaskCloud::TaskCloud(std::shared_ptr<MemoryManager> eeprom, SystemStorage& storage, EventGroupHandle_t event_grp)
     : ParentTask("Cloud connect to wifi, send/receive", 2048, tskIDLE_PRIORITY + 1),
-      storage(storage), event_grp(event_grp)
+      storage(storage), event_grp(event_grp), eeprom(eeprom)
 {}
 
 
 void TaskCloud::task_runner() {
-	std::cout << "Cloud starts\n";
     wifi_manager = std::make_unique<WifiManager>(WIFI_ID, WIFI_PWD);
 
     const uint8_t thingspeak_cert[] = THINGSPEAK_CERT;
@@ -25,7 +25,7 @@ void TaskCloud::task_runner() {
 
 	}
     while (true) {
-    	EventBits_t uxBit = xEventGroupWaitBits(event_grp,WIFI_RECONNECT_BIT,pdTRUE,pdFALSE,portMAX_DELAY);
+    	EventBits_t uxBit = xEventGroupWaitBits(event_grp,WIFI_RECONNECT_BIT,pdTRUE,pdFALSE,0);
     	if (uxBit & WIFI_RECONNECT_BIT)
     	{
     		connect_wifi(storage.get_network_settings().ssid, storage.get_network_settings().pwd);
@@ -38,6 +38,8 @@ void TaskCloud::task_runner() {
             if (thingspeak.receive_setpoint(new_setpoint)) {
                 storage.set_co2_point(new_setpoint);
                 printf("[CLOUD] Set new setpoint = %d\n", new_setpoint);
+            	eeprom->save_new_co2_setting(new_setpoint);
+            	xEventGroupSetBits(event_grp,NEW_CO2_TALKBACK_BIT);
             }
 
             data = storage.get_data();

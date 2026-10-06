@@ -21,9 +21,9 @@
 class TaskUI : public ParentTask
 {
 	public:
-		TaskUI (const std::shared_ptr<PicoI2C> &i2c_0, const std::shared_ptr<PicoI2C> &i2c_1, SystemStorage &storage, EventGroupHandle_t event_group,  TaskHandle_t cloud)
-			: ParentTask("UI Task", 2048,tskIDLE_PRIORITY + 4),
-			  i2c_0(i2c_0),
+		TaskUI (const std::shared_ptr<MemoryManager> &eeprom, const std::shared_ptr<PicoI2C> &i2c_1, SystemStorage &storage, EventGroupHandle_t event_group,  TaskHandle_t cloud)
+			: ParentTask("UI Task", 2048,tskIDLE_PRIORITY + 1),
+			  eeprom(eeprom),
 			  i2c_1(i2c_1),
 			  btn_sw(SW0),
 			  storage(storage),

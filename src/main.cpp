@@ -61,12 +61,13 @@ int main() {
 	SystemStorage storage = SystemStorage();
 	auto i2c_0 = std::make_shared<PicoI2C>(0, 100000);
 	auto i2c_1 = std::make_shared<PicoI2C>(1, 400000);
+	auto eeprom = std::make_shared<MemoryManager>(i2c_0);
 
 
     static SensorTask sensor_task(client,storage,i2c_1);
     static  ControllerTask controller_task(actuator, storage);
-	static TaskCloud cloud_task(storage, task_event_grp);
-	static  TaskUI ui_task(i2c_0,i2c_1,storage, task_event_grp, cloud_task.getTaskHandle());
+	static TaskCloud cloud_task(eeprom,storage, task_event_grp);
+	static  TaskUI ui_task(eeprom,i2c_1,storage, task_event_grp, cloud_task.getTaskHandle());
 	static TaskConsole console_task(task_event_grp, ui_task.get_input_queue_handle());
 
 

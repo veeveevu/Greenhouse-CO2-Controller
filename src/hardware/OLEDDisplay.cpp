@@ -133,13 +133,13 @@ void OLEDDisplay::connect_new_network(NetworkParam current_param, const char* ss
 		int input_y;
 		if (current_param == NetworkParam::SSID)
 		{
-			input_y = 11;
+			input_y = 12;
 			display.rect(0, 51, 60, 13, 1, false);
 			display.text("Connect", 1, 52, 1);
 		}
 		else
 		{
-			input_y = 40;
+			input_y = 41;
 
 			display.rect(0,11,125,15,0,true);
 			display.text(ssid_input, 0, 10, 1);
@@ -149,9 +149,9 @@ void OLEDDisplay::connect_new_network(NetworkParam current_param, const char* ss
 			display.text("Connect", 1, 52, 0);
 
 		}
-		display.rect(0,input_y, 125,10,1,false);
+		display.rect(0,input_y, 125,12,1,false);
 		display.rect(1, input_y+ 1, 120,8,0,true);
-		display.text(input_buffer, 1, input_y, 1);
+		display.text(input_buffer , 1, input_y, 1);
 
 	}
 	else
