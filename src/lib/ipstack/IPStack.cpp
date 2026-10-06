@@ -1,11 +1,13 @@
 //
 // Created by Keijo Länsikunnas on 12.2.2024.
 //
+#include "FreeRTOS.h"
+#include "task.h"
 #include <cstring>
 #include "pico/time.h"
-
 #include "IPStack.h"
-
+#include "lwip/opt.h"
+#include "lwip/dns.h"
 
 // To remove Pico example debugging functions during refactoring
 //#define DEBUG_printf(x, ...) {}
@@ -20,13 +22,61 @@ IPStack::IPStack(const char *ssid, const char *pw) : tcp_pcb{nullptr}, dropped{0
     }
     cyw43_arch_enable_sta_mode();
 
-    DEBUG_printf("Connecting to Wi-Fi...\n");
-    if (cyw43_arch_wifi_connect_timeout_ms(ssid, pw, CYW43_AUTH_WPA2_AES_PSK, 30000)) {
-        DEBUG_printf("Failed to connect.\n");
-    } else {
-        DEBUG_printf("Connected.\n");
-    }
+	connect_to_wifi(ssid, pw);
+}
 
+IPStack::IPStack() : tcp_pcb{nullptr}, dropped{0}, count{0}, wr{0}, rd{0}, connected{false} {
+	if (cyw43_arch_init()) {
+		DEBUG_printf("failed to initialise\n");
+		return;
+	}
+	cyw43_arch_enable_sta_mode();
+}
+
+void IPStack::connect_to_wifi(const char* ssid, const char* pw)
+{
+
+	connected = false;
+	cyw43_wifi_leave(&cyw43_state, CYW43_ITF_STA);
+	DEBUG_printf("Connecting to Wi-Fi...\n");
+	const int max_retries = 3;
+	int attempt = 0;
+	while (attempt < max_retries && !connected)
+	{
+		attempt++;
+		DEBUG_printf("WiFi connection attempt number %d\n",attempt);
+		if (cyw43_arch_wifi_connect_timeout_ms(ssid, pw, CYW43_AUTH_WPA2_AES_PSK, 10000)) {
+			DEBUG_printf("Failed to connect. Reconnecting...\n");
+			vTaskDelay(pdMS_TO_TICKS(1000));
+		} else {
+			DEBUG_printf("Connected.\n");
+			connected = true;
+		}
+	}
+}
+
+struct DNSResult
+{
+	ip_addr_t ip_addr;
+	bool done;
+	err_t error;
+};
+
+bool IPStack::is_connected()
+{
+	return connected;
+}
+
+static void dns_callback(const char *name, const ip_addr_t *ipaddr, void *callback_arg)
+{
+	DNSResult* result = (DNSResult*)callback_arg;
+	if (ipaddr) {
+		result->ip_addr = *ipaddr;
+		result->error = ERR_OK;
+	} else {
+		result->error = ERR_VAL; // DNS lookup failed
+	}
+	result->done = true;
 }
 
 int IPStack::connect(uint32_t hostname, int port) {
@@ -37,8 +87,28 @@ int IPStack::connect(const char *hostname, int port) {
     // check if the hostname requires DNS resolution
     if (!ip4addr_aton(hostname, &remote_addr)) {
         // dns not implemented yet
-        return ERR_ARG;
+    	DNSResult dns_res = {0};
+    	dns_res.done = false;
+
+    	err_t err = dns_gethostbyname(hostname, &dns_res.ip_addr, dns_callback, &dns_res);
+
+    	if (err == ERR_OK) {
+    		// IP was cached locally in lwIP DNS cache
+    		remote_addr = dns_res.ip_addr;
+    	} else if (err == ERR_INPROGRESS) {
+    		// Wait for lwIP network background loop / FreeRTOS task to process the DNS response
+    		while (!dns_res.done) {
+    			vTaskDelay(pdMS_TO_TICKS(10));
+    		}
+    		if (dns_res.error != ERR_OK) {
+    			return dns_res.error; // DNS resolution failed
+    		}
+    		remote_addr = dns_res.ip_addr;
+    	} else {
+    		return err; // Failed to initiate DNS request
+    	}
     }
+
     // open a socket connection
     DEBUG_printf("Connecting to %s port %u\n", ip4addr_ntoa(&remote_addr), port);
     tcp_pcb = tcp_new_ip_type(IP_GET_TYPE(remote_addr));

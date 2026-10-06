@@ -30,6 +30,11 @@ class ParentTask
 			vTaskDelete(handle);
 		};
 		virtual void task_runner() = 0;
+
+		TaskHandle_t getTaskHandle() const
+		{
+			return handle;
+		}
 	private:
 		const char *name;
 		uint16_t    stack_depth;

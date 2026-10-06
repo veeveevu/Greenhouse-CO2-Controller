@@ -43,8 +43,8 @@ void SensorDataHandler::sensors_read() {
     }
 
 
-/*
-    std::cout << "CO2: " << data.co2_level_ppm << " ppm\n"
+
+    /*std::cout << "CO2: " << data.co2_level_ppm << " ppm\n"
 		    << "Temperature: " << data.temp_celsius << " C\n"
 		    << "Humidity: " << data.humidity_percent << " %\n"
 		    << "Pressure: " << data.pressure_pa << " Pa\n"

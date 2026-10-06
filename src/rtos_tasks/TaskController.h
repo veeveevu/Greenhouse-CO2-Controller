@@ -28,11 +28,13 @@ public:
                    SystemStorage &storage);
 private:
     void task_runner() override;
+	void handle_co2(const SensorReading &data);
+
 
     std::shared_ptr<ActuatorController> controller;
 
-    void handle_co2(const SensorReading &data);
 
+	bool initial_read_complete = false;
 	SystemStorage &storage;
     ValveState valve_state = ValveState::CLOSED;
 

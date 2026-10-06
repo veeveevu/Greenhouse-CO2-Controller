@@ -15,6 +15,7 @@ struct SensorReading {
 
 	int co2_set_point;
     uint16_t fan_pulse_counter = 0;
+	float fan_speed = 0;
     bool is_fan_running = false;
 
 	bool operator==(const SensorReading &other) const
@@ -32,15 +33,10 @@ struct SensorReading {
 	}
 };
 
-//gui cai nay cho queue cua UI
-struct ActuatorState {
-    float fan_power_percent = 0;
-    bool is_valve_open = false;
-};
-
-//struct that controller read, UI set
-struct Co2Setting {
-    float co2_setpoint = 1500;
+struct NetworkSetting
+{
+	char ssid[20];
+	char pwd[20];
 };
 
 

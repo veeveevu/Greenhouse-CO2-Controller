@@ -13,6 +13,11 @@
 #include "TaskReadSensors.h"
 #include "TaskUI.h"
 #include "lib/modbus/ModbusRegister.h"
+#include "IPStack.h"
+#include "TaskCloud.h"
+#include "cloud/secrets.h"
+#include "cloud/ThingSpeak.h"
+#include "cloud/WifiManager.h"
 
 #include "hardware/timer.h"
 #include "pico/stdio.h"
@@ -42,10 +47,12 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
 #define ROT_A 10
 #define ROT_B 11
 
+
 int main() {
     stdio_init_all();
 	printf("Boot\n");
 
+	EventGroupHandle_t task_event_grp = xEventGroupCreate();
 
     auto uart = std::make_shared<PicoOsUart>(UART_NR,UART_TX_PIN,UART_RX_PIN,BAUD_RATE,STOP_BITS);
     auto client = std::make_shared<ModbusClient>(uart);
@@ -58,15 +65,18 @@ int main() {
 
     static SensorTask sensor_task(client,storage,i2c_1);
     static  ControllerTask controller_task(actuator, storage);
-	static  TaskUI ui_task(i2c_0,i2c_1,storage);
-	static TaskConsole console_task;
+	static TaskCloud cloud_task(storage, task_event_grp);
+	static  TaskUI ui_task(i2c_0,i2c_1,storage, task_event_grp, cloud_task.getTaskHandle());
+	static TaskConsole console_task(task_event_grp, ui_task.get_input_queue_handle());
 
-	static Encoder encoder(ROT_SW, ROT_A, ROT_B,ui_task.get_queue_handle());
+
+	static Encoder encoder(ROT_SW, ROT_A, ROT_B,ui_task.get_ui_queue_handle());
 
     sensor_task.start();
     controller_task.start();
 	ui_task.start();
 	console_task.start();
+	cloud_task.start();
 
     vTaskStartScheduler();
 
@@ -74,6 +84,7 @@ int main() {
     {
     }
 }
+
 
 /*
 //CODE CUA THAY KEIJO ========================================================================================
