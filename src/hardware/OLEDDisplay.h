@@ -28,7 +28,9 @@ class OLEDDisplay {
 
 		void clear();
 
-		void show_options(int option_length, std::vector<std::string> options,  int &x, int &y);
+		void show_options(int option_length, std::vector<std::string> options,  int x, int y);
+
+		void update_selection(int option_length, std::vector<std::string> options, int x, int y);
 
 		void show_menu();
 
@@ -76,6 +78,8 @@ class OLEDDisplay {
 
 		//Menu
 		int current_select = 1;
+		int prev_select = 0;
+		bool menu_render_complete = false;
 		int x_pointer = 5;
 		int y_pointer = 11;
 		menuItem main_menu{

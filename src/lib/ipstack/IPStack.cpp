@@ -55,6 +55,12 @@ void IPStack::connect_to_wifi(const char* ssid, const char* pw)
 	}
 }
 
+void IPStack::disconnect_wifi()
+{
+	connected = false;
+	cyw43_wifi_leave(&cyw43_state, CYW43_ITF_STA);
+}
+
 struct DNSResult
 {
 	ip_addr_t ip_addr;

@@ -16,6 +16,8 @@ public:
 
     void connect_new_wifi(const char *ssid, const char *pw);
 
+    void disconnect_wifi();
+
 private:
     const char *                   ssid;
     const char *                   password;

@@ -21,6 +21,8 @@ public:
 
     void connect_to_wifi(const char *ssid, const char *pw);
 
+    void disconnect_wifi();
+
     int  connect(const char *hostname, int port);
 
     bool is_connected();

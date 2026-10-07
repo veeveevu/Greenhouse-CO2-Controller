@@ -12,27 +12,66 @@ void OLEDDisplay::clear() {
 	display.fill(0);
 	display.show();
 }
-void OLEDDisplay::show_options(int option_length, std::vector<std::string> options, int &x, int &y)
+void OLEDDisplay::show_options(int option_length, std::vector<std::string> options, int x, int y)
 {
 
-	for ( int i = 0; i < option_length; i++)
+	if (current_select == prev_select)
 	{
-		//Highlight the option to be selected
-		bool selected = ((current_select -1) == i);
-		if (selected)
+		return;
+	}
+	else
+	{
+		if (!menu_render_complete)
 		{
-			display.rect(x,y-1,125,10,1,true);
-			display.text(options[i],x, y, 0);
-		}
+			for ( int i = 0; i < option_length; i++)
+			{
+				//Highlight the option to be selected
+				bool selected = ((current_select -1) == i);
+				if (selected)
+				{
+					display.rect(x,y-1,125,10,1,true);
+					display.text(options[i],x, y, 0);
+				}
 
-		//Show the options that are not highlighted
+				//Show the options that are not highlighted
+				else
+				{
+					display.text(options[i],x, y, 1);
+				}
+				y += 12;
+			}
+			menu_render_complete = true;
+		}
 		else
 		{
-			display.text(options[i],x, y, 1);
+			update_selection(option_length,options,x, y);
 		}
-		y += 12;
+		prev_select = current_select;
 	}
+
 	display.show();
+}
+
+void OLEDDisplay::update_selection(int option_length,std::vector<std::string> options, int x, int y)
+{
+
+
+	int y_menu = y;
+	for ( int i = 0; i < option_length; i++)
+	{
+		display.text(options[i],x, y_menu, 1);
+		y_menu += 12;
+	}
+
+	int prev_select_y = y + 12*(prev_select-1);
+	display.rect(x,prev_select_y-1,125,10,0,false);
+	display.text(options[prev_select - 1],x, prev_select_y, 1);
+
+	int current_select_y = y + 12*(current_select - 1);
+	display.rect(x,current_select_y-1,125,10,1,true);
+	display.text(options[current_select - 1],x, current_select_y, 0);
+
+
 }
 
 void OLEDDisplay::show_menu()
@@ -220,6 +259,8 @@ void OLEDDisplay::decrement_menu_select()
 void OLEDDisplay::reset_menu_select()
 {
 	current_select = 1;
+	prev_select = 0;
+	menu_render_complete = false;
 }
 
 
@@ -250,8 +291,8 @@ void OLEDDisplay::confirm_reset()
 	clear();
 	display.text("Factory resetting...",0,10,1);
 	display.text("Disconnecting WiFi", 0,20,1);
-	vTaskDelay(pdMS_TO_TICKS(1000));
 	display.show();
+	vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
 void OLEDDisplay::wrong_command()

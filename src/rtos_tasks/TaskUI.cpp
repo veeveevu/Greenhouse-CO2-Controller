@@ -229,12 +229,14 @@ void TaskUI::menu_interaction()
 	{
 		if (bool encoder_pressed = handle_encoder(encoder_receive))
 		{
+			oled->reset_menu_select();
 			transition_to(current_state);
 		}
 	}
 	else if (button->is_pressed())
 	{
 		transition_to(UIEvent::MENU);
+		oled->reset_menu_select();
 	}
 }
 
@@ -408,6 +410,7 @@ void TaskUI::factory_reset_interaction()
 			{
 				storage.factory_reset();
 				ui_reset();
+				oled->confirm_reset();
 			}
 			else
 			{
@@ -475,9 +478,12 @@ void TaskUI::ui_reset()
 {
 	input_count = 0;
 	input_buffer[0] = '\0';
+	ssid_input[0] = '\0';
+	pwd_input[0] = '\0';
 	co2_setting_display = 1500;
 	eeprom->save_new_co2_setting(1500);
 	eeprom->reset_network_setting();
+	xEventGroupSetBits(event_grp, WIFI_RECONNECT_BIT);
 	transition_to(UIEvent::MENU);
 }
 

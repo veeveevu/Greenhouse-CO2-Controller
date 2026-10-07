@@ -25,11 +25,12 @@ void TaskCloud::task_runner() {
 
 	}
     while (true) {
-    	EventBits_t uxBit = xEventGroupWaitBits(event_grp,WIFI_RECONNECT_BIT,pdTRUE,pdFALSE,0);
+    	EventBits_t uxBit = xEventGroupWaitBits(event_grp,WIFI_RECONNECT_BIT ,pdTRUE,pdFALSE,0);
     	if (uxBit & WIFI_RECONNECT_BIT)
     	{
     		connect_wifi(storage.get_network_settings().ssid, storage.get_network_settings().pwd);
     	}
+
 
         SensorReading data = storage.get_data();
         int new_setpoint = data.co2_set_point;
@@ -56,7 +57,7 @@ void TaskCloud::task_runner() {
     }
 }
 
-void TaskCloud::connect_wifi(const char* ssid, const char* pw)
+void TaskCloud::connect_wifi(char *ssid,  char *pw)
 {
 	std::cout << "New WiFi connecting\n";
 	storage.update_wifi_status(WiFiStatus::CONNECTING);
@@ -66,6 +67,7 @@ void TaskCloud::connect_wifi(const char* ssid, const char* pw)
 	if (connect_result == WiFiStatus::CONNECT_SUCCESS)
 	{
 		storage.update_network(ssid, pw);
+		eeprom->save_network_setting(ssid,pw);
 	}
 	storage.update_wifi_status(connect_result);
 }
