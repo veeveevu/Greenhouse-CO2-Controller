@@ -71,6 +71,7 @@ void SystemStorage::factory_reset()
 
 		network_setting.ssid[0] = '\0';
 		network_setting.pwd[0] = '\0';
+		wifi_status = WiFiStatus::IDLE;
 		xSemaphoreGive(mutex);
 	}
 }

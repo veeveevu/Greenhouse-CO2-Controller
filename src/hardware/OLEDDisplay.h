@@ -66,6 +66,8 @@ class OLEDDisplay {
 
 		void show_reset(const char *input);
 
+		void confirm_reset();
+
 		void wrong_command();
 
 	private:
