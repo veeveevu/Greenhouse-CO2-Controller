@@ -245,11 +245,21 @@ void OLEDDisplay::show_reset(const char *input)
 	display.show();
 }
 
+void OLEDDisplay::confirm_reset()
+{
+	clear();
+	display.text("Factory resetting...",0,10,1);
+	display.text("Disconnecting WiFi", 0,20,1);
+	vTaskDelay(pdMS_TO_TICKS(1000));
+	display.show();
+}
+
 void OLEDDisplay::wrong_command()
 {
 	clear();
 	display.text("Wrong command",0,10,1);
-	display.text("Return to main menu", 0,20,1);
+	display.text("Return to ", 0,20,1);
+	display.text("main menu", 0,30,1);
 	display.show();
 }
 
