@@ -22,6 +22,9 @@ public:
 private:
     void task_runner() override;
     void connect_wifi(char *ssid,  char *pw);
+
+    void disconnect_wifi();
+
     void process_command(const char *command);
 
     SystemStorage &storage;

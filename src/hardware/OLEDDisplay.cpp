@@ -227,6 +227,7 @@ void OLEDDisplay::connect_failed()
 {
 	display.text("Failed to connect", 0, 20, 1);
 	display.show();
+	vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
 void OLEDDisplay::increment_menu_select(UIEvent current_state)
@@ -290,7 +291,7 @@ void OLEDDisplay::confirm_reset()
 {
 	clear();
 	display.text("Factory resetting...",0,10,1);
-	display.text("Disconnecting WiFi", 0,20,1);
+	display.text("Disconnect WiFi", 0,20,1);
 	display.show();
 	vTaskDelay(pdMS_TO_TICKS(1000));
 }

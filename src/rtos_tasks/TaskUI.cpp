@@ -41,11 +41,12 @@ void TaskUI::task_runner()
 		EventBits_t bit = xEventGroupWaitBits(event_grp,NEW_CO2_TALKBACK_BIT,pdTRUE,pdFALSE,0);
 		if (bit & NEW_CO2_TALKBACK_BIT)
 		{
+			std::cout <<"Talk back UI\n";
 			oled->confirm_co2_setting(storage.get_data().co2_set_point);
 			vTaskDelay(pdMS_TO_TICKS(1000));
-			state_change= true;
-			current_state = UIEvent::MENU;
-			oled->clear();
+			oled->reset_menu_select();
+			transition_to(UIEvent::MENU);
+			handle_state();
 		}
 
 		WiFiStatus current_wifi_state = storage.get_wifi_status();
@@ -61,7 +62,6 @@ void TaskUI::task_runner()
 			handle_state();
 			handle_interaction();
 		}
-
 		vTaskDelay(pdMS_TO_TICKS(1));
 	}
 }
@@ -190,6 +190,7 @@ void TaskUI::handle_interaction()
 			break;
 		case UIEvent::NETWORK:
 			menu_interaction();
+			break;
 		case UIEvent::CO2_SETTING:
 			co2_setting_interaction();
 			break;
@@ -411,6 +412,7 @@ void TaskUI::factory_reset_interaction()
 				storage.factory_reset();
 				ui_reset();
 				oled->confirm_reset();
+				oled->clear();
 			}
 			else
 			{
@@ -447,6 +449,7 @@ void TaskUI::new_network_interaction()
 			else if (current_network_input == NetworkParam::PASSWORD)
 			{
 				std::strcpy(pwd_input, input_buffer);
+				xEventGroupSetBits(event_grp,WIFI_RECONNECT_BIT);
 				reset_input_buffer();
 				current_network_input = NetworkParam::DONE;
 				state_change = true;
@@ -454,7 +457,6 @@ void TaskUI::new_network_interaction()
 				//Update SSID and PWD - then set bit in event group
 				storage.update_network(ssid_input, pwd_input);
 				storage.update_wifi_status(WiFiStatus::CONNECTING);
-				xEventGroupSetBits(event_grp,WIFI_RECONNECT_BIT);
 
 				exit_text_entry(UIEvent::MENU);
 				current_network_input = NetworkParam::SSID;
@@ -483,7 +485,7 @@ void TaskUI::ui_reset()
 	co2_setting_display = 1500;
 	eeprom->save_new_co2_setting(1500);
 	eeprom->reset_network_setting();
-	xEventGroupSetBits(event_grp, WIFI_RECONNECT_BIT);
+	xEventGroupSetBits(event_grp, WIFI_DISCONNECT_BIT);
 	transition_to(UIEvent::MENU);
 }
 
