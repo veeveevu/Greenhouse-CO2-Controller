@@ -47,16 +47,22 @@ void IPStack::connect_to_wifi(const char* ssid, const char* pw)
 		DEBUG_printf("WiFi connection attempt number %d\n",attempt);
 		if (cyw43_arch_wifi_connect_timeout_ms(ssid, pw, CYW43_AUTH_WPA2_AES_PSK, 10000)) {
 			DEBUG_printf("Failed to connect.\n");
-		    if (attempt < max_retries)
-		    {
-		        DEBUG_printf("Reconnecting...\n");
-		        vTaskDelay(pdMS_TO_TICKS(1000));
-		    }
+			if (attempt < max_retries)
+			{
+				DEBUG_printf("Reconnecting...\n");
+				vTaskDelay(pdMS_TO_TICKS(1000));
+			}
 		} else {
 			DEBUG_printf("Connected.\n");
 			connected = true;
 		}
 	}
+}
+
+void IPStack::disconnect_wifi()
+{
+	connected = false;
+	cyw43_wifi_leave(&cyw43_state, CYW43_ITF_STA);
 }
 
 struct DNSResult

@@ -25,10 +25,14 @@ void TaskCloud::task_runner() {
 
 	}
     while (true) {
-    	EventBits_t uxBit = xEventGroupWaitBits(event_grp,WIFI_RECONNECT_BIT,pdTRUE,pdFALSE,0);
+    	EventBits_t uxBit = xEventGroupWaitBits(event_grp,WIFI_RECONNECT_BIT | WIFI_DISCONNECT_BIT ,pdTRUE,pdFALSE,0);
     	if (uxBit & WIFI_RECONNECT_BIT)
     	{
     		connect_wifi(storage.get_network_settings().ssid, storage.get_network_settings().pwd);
+    	}
+    	else if (uxBit & WIFI_DISCONNECT_BIT)
+    	{
+    		disconnect_wifi();
     	}
 
         SensorReading data = storage.get_data();
@@ -51,21 +55,47 @@ void TaskCloud::task_runner() {
                 data.fan_speed,
                 data.co2_set_point
             );
+        	vTaskDelay(pdMS_TO_TICKS(20000));
         }
-        vTaskDelay(pdMS_TO_TICKS(20000));
+    	vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
-void TaskCloud::connect_wifi(const char* ssid, const char* pw)
+void TaskCloud::connect_wifi(char *ssid,  char *pw)
 {
+    //Check the saved credentials (in case of failed connection to the new network)
+    char current_ssid[33];
+	char current_pwd[33];
+	int result_eeprom = eeprom ->read_network_setting(current_ssid, current_pwd);
+
+	//Get the new credentials
 	std::cout << "New WiFi connecting\n";
 	storage.update_wifi_status(WiFiStatus::CONNECTING);
 	NetworkSetting network_setting = storage.get_network_settings();
+
+    //Try to connect with new credentials
 	wifi_manager ->connect_new_wifi(network_setting.ssid, network_setting.pwd);
+
+	//Check result
+	//Success -> update status in system storage
 	WiFiStatus connect_result = wifi_manager->is_connected() ? WiFiStatus::CONNECT_SUCCESS : WiFiStatus::CONNECT_FAIL;
-	if (connect_result == WiFiStatus::CONNECT_SUCCESS)
+	if (connect_result == WiFiStatus::CONNECT_SUCCESS )
 	{
 		storage.update_network(ssid, pw);
+		eeprom->save_network_setting(ssid,pw);
+	}
+	//Fail -> reconnect to previous credentials if it is valid
+	else if (connect_result == WiFiStatus::CONNECT_FAIL && result_eeprom == 2)
+	{
+		storage.update_network(current_ssid, current_pwd);
+		wifi_manager->connect_new_wifi(current_ssid, current_pwd);
+		connect_result = wifi_manager->is_connected() ? WiFiStatus::CONNECT_SUCCESS : WiFiStatus::CONNECT_FAIL;
 	}
 	storage.update_wifi_status(connect_result);
+}
+
+void TaskCloud::disconnect_wifi()
+{
+	wifi_manager->disconnect_wifi();
+
 }

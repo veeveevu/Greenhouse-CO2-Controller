@@ -17,3 +17,8 @@ void WifiManager::connect_new_wifi(const char* ssid, const char* pw)
 {
 	ip_stack->connect_to_wifi(ssid, pw);
 }
+
+void WifiManager::disconnect_wifi()
+{
+	ip_stack->disconnect_wifi();
+}
