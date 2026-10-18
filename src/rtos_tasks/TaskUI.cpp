@@ -76,6 +76,11 @@ void TaskUI::boot()
 
 	//Read from EEPROM and save
 	eeprom->read_co2_setting(reinterpret_cast<uint8_t *>(&co2_setting_display));
+	if (co2_setting_display < CO2_LOWER_LIM || co2_setting_display > CO2_UPPER_LIM)
+	{
+		co2_setting_display = 1500;
+		eeprom ->save_new_co2_setting(co2_setting_display);
+	}
 	printf("EEPROM read, co2 set: %d\n",co2_setting_display);
 	storage.set_co2_point(co2_setting_display);
 	printf("Storage co2 set: %d\n", storage.get_data().co2_set_point);
@@ -209,6 +214,7 @@ void TaskUI::handle_interaction()
 void TaskUI::transition_to(UIEvent new_state)
 {
 	oled->clear();
+	oled->reset_menu_select();
 	current_state = new_state;
 	state_change = true;
 
