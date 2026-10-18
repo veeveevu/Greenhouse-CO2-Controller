@@ -63,19 +63,28 @@ void TaskCloud::task_runner() {
 
 void TaskCloud::connect_wifi(char *ssid,  char *pw)
 {
+    //Check the saved credentials (in case of failed connection to the new network)
+    char current_ssid[33];
+	char current_pwd[33];
+	int result_eeprom = eeprom ->read_network_setting(current_ssid, current_pwd);
+
+	//Get the new credentials
 	std::cout << "New WiFi connecting\n";
 	storage.update_wifi_status(WiFiStatus::CONNECTING);
 	NetworkSetting network_setting = storage.get_network_settings();
-	char current_ssid[33];
-	char current_pwd[33];
-	int result_eeprom = eeprom ->read_network_setting(current_ssid, current_pwd);
+
+    //Try to connect with new credentials
 	wifi_manager ->connect_new_wifi(network_setting.ssid, network_setting.pwd);
+
+	//Check result
+	//Success -> update status in system storage
 	WiFiStatus connect_result = wifi_manager->is_connected() ? WiFiStatus::CONNECT_SUCCESS : WiFiStatus::CONNECT_FAIL;
 	if (connect_result == WiFiStatus::CONNECT_SUCCESS )
 	{
 		storage.update_network(ssid, pw);
 		eeprom->save_network_setting(ssid,pw);
 	}
+	//Fail -> reconnect to previous credentials if it is valid
 	else if (connect_result == WiFiStatus::CONNECT_FAIL && result_eeprom == 2)
 	{
 		storage.update_network(current_ssid, current_pwd);
